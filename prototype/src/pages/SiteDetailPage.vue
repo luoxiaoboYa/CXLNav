@@ -13,6 +13,9 @@
       </div>
 
       <div class="header-actions">
+        <button class="primary-action" type="button">打开站点</button>
+        <button class="ghost-link" type="button">编辑</button>
+        <button class="ghost-link" type="button">{{ site?.archiveStatus === 'archived' ? '恢复' : '归档' }}</button>
         <RouterLink class="ghost-link" to="/my-sites">返回我的站点</RouterLink>
       </div>
     </header>
@@ -21,33 +24,89 @@
       <article class="panel hero-panel">
         <div class="hero-top">
           <span class="meta-chip">{{ site.category }}</span>
+          <span class="meta-chip">{{ site.bookmarkPath }}</span>
+          <span class="meta-chip">{{ getSecurityLabel(site.securityStatus) }}</span>
           <span class="updated-at">{{ site.updatedAt }}</span>
         </div>
 
         <p class="detail-copy">{{ site.detail }}</p>
+
+        <p v-if="site.recommendationHint" class="recommendation-hint">
+          {{ site.recommendationHint }}，可查看公开说明或补充自己的推荐理由。
+        </p>
 
         <ul class="tag-list">
           <li v-for="tag in site.tags" :key="tag">{{ tag }}</li>
         </ul>
       </article>
 
-      <section class="detail-grid">
+      <section class="panel action-panel" aria-label="个人站点操作">
+        <button class="primary-action" type="button" :disabled="!canShare">
+          共享到推荐库
+        </button>
+        <button class="ghost-link" type="button">查看推荐库说明</button>
+        <button class="ghost-link" type="button">补充备注</button>
+        <button class="ghost-link" type="button">重新检测</button>
+        <button class="danger-action" type="button">删除</button>
+      </section>
+
+      <section class="detail-grid three-columns">
         <article class="panel">
-          <h2>推荐保留信息</h2>
+          <h2>个人站点详情</h2>
           <ul class="info-list">
             <li>站点名称：{{ site.title }}</li>
+            <li>站点链接：{{ site.url }}</li>
             <li>分类：{{ site.category }}</li>
+            <li>书签路径：{{ site.bookmarkPath }}</li>
             <li>标签：{{ site.tags.join(' / ') }}</li>
+            <li>最近打开：{{ site.lastOpenedAt }}</li>
             <li>最近更新时间：{{ site.updatedAt }}</li>
           </ul>
         </article>
 
         <article class="panel">
-          <h2>后续开发提示</h2>
+          <h2>状态与整理</h2>
           <ul class="info-list">
-            <li>这里适合继续补站点截图、收藏来源和备注历史。</li>
-            <li>编辑入口可以后续接回弹窗表单，保持录入与详情一致。</li>
-            <li>相关推荐可以按同分类或同标签在右侧扩展。</li>
+            <li>整理状态：{{ getOrganizeLabel(site.organizeStatus) }}</li>
+            <li>安全状态：{{ getSecurityLabel(site.securityStatus) }}</li>
+            <li>归档状态：{{ site.archiveStatus === 'archived' ? '已归档' : '正常' }}</li>
+            <li>共享状态：{{ getShareLabel(site.shareStatus) }}</li>
+            <li>风险或未校验站点不能发起共享。</li>
+          </ul>
+        </article>
+
+        <article class="panel">
+          <h2>私人信息边界</h2>
+          <ul class="info-list">
+            <li>个人备注、个人标签、书签路径和使用频率不会公开。</li>
+            <li>删除个人站点不会删除已发布的公开推荐内容。</li>
+            <li>从推荐库收藏时，平台标签只作为建议。</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="detail-grid">
+        <article class="panel public-panel">
+          <span class="meta-chip">公开主站点详情</span>
+          <h2>{{ publicMainSite.title }}</h2>
+          <p>{{ publicMainSite.description }}</p>
+          <ul class="info-list">
+            <li>分类：{{ publicMainSite.category }}</li>
+            <li>平台标签：{{ publicMainSite.tags.join(' / ') }}</li>
+            <li>收藏数：{{ publicMainSite.favoriteCount }}</li>
+            <li>可操作：打开官网 / 收藏到我的站点 / 补充推荐理由 / 举报</li>
+          </ul>
+        </article>
+
+        <article class="panel public-panel">
+          <span class="meta-chip">公开功能站点详情</span>
+          <h2>{{ publicFeatureSite.title }}</h2>
+          <p>{{ publicFeatureSite.description }}</p>
+          <ul class="info-list">
+            <li>所属主站点：{{ publicFeatureSite.parent }}</li>
+            <li>平台标签：{{ publicFeatureSite.tags.join(' / ') }}</li>
+            <li>推荐理由：{{ publicFeatureSite.reason }}</li>
+            <li>可操作：打开 / 收藏 / 查看所属主站点 / 举报</li>
           </ul>
         </article>
       </section>
@@ -69,6 +128,53 @@ import { findSiteByTitle } from '../data/sites'
 const route = useRoute()
 const siteTitle = computed(() => String(route.params.siteTitle ?? ''))
 const site = computed(() => findSiteByTitle(siteTitle.value))
+const canShare = computed(() => site.value?.securityStatus === 'safe' && site.value.archiveStatus === 'active')
+
+const organizeLabels = {
+  complete: '信息完整',
+  missing_description: '缺少说明',
+  missing_tags: '缺少标签',
+  duplicate_suspected: '疑似重复',
+  link_problem: '链接异常',
+  path_pending: '路径待确认',
+  stale: '长期未打开'
+}
+
+const securityLabels = {
+  unchecked: '未校验',
+  checking: '校验中',
+  safe: '正常',
+  unreachable: '无法访问',
+  risky: '存在风险',
+  blocked: '已阻止'
+}
+
+const shareLabels = {
+  none: '未共享',
+  pending: '审核中',
+  published: '已发布',
+  rejected: '审核拒绝'
+}
+
+const publicMainSite = {
+  title: 'GitHub',
+  description: '公开推荐库里的主站点对象，展示公开标题、链接、描述、分类、平台标签和推荐理由。',
+  category: '开发',
+  tags: ['开源', '代码托管', '协作'],
+  favoriteCount: 128
+}
+
+const publicFeatureSite = {
+  title: 'GitHub Trending',
+  description: '功能站点表示具体页面、项目、模板或文档，可关联到主站点，也可以独立存在。',
+  parent: 'GitHub',
+  tags: ['趋势', '开源项目'],
+  reason: '每天查看开源趋势很方便。'
+}
+
+const getOrganizeLabel = (status: keyof typeof organizeLabels) => organizeLabels[status]
+const getSecurityLabel = (status: keyof typeof securityLabels) => securityLabels[status]
+const getShareLabel = (status: keyof typeof shareLabels) => shareLabels[status]
 </script>
 
 <style scoped>
@@ -112,11 +218,16 @@ h2 {
   line-height: 1.6;
 }
 
-.header-actions {
+.header-actions,
+.action-panel {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
   justify-content: end;
+}
+
+.action-panel {
+  justify-content: start;
 }
 
 .panel {
@@ -139,7 +250,9 @@ h2 {
 
 .meta-chip,
 .tag-list li,
-.ghost-link {
+.ghost-link,
+.primary-action,
+.danger-action {
   display: inline-flex;
   align-items: center;
   border: 1px solid #d7d2c6;
@@ -149,6 +262,22 @@ h2 {
   color: #1f251f;
   text-decoration: none;
   font: inherit;
+}
+
+.primary-action {
+  border-color: #1b6a52;
+  background: #1b6a52;
+  color: #ffffff;
+}
+
+.primary-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.danger-action {
+  border-color: #e4c7c2;
+  color: #9d2f24;
 }
 
 .detail-copy {
@@ -170,6 +299,14 @@ h2 {
   gap: 8px;
 }
 
+.recommendation-hint {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: #deeee7;
+  color: #1b6a52;
+}
+
 .info-list {
   display: grid;
   gap: 10px;
@@ -177,6 +314,21 @@ h2 {
 
 .detail-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.three-columns {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.public-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.public-panel p {
+  margin: 0;
+  color: #61685f;
+  line-height: 1.6;
 }
 
 .empty-state {
@@ -187,6 +339,7 @@ h2 {
 @media (max-width: 960px) {
   .page-header,
   .detail-grid,
+  .three-columns,
   .hero-top {
     grid-template-columns: 1fr;
     display: grid;

@@ -43,7 +43,7 @@ describe('my sites page', () => {
 
     await fireEvent.click(screen.getAllByRole('link', { name: '查看详情' })[0])
     expect(await screen.findByRole('heading', { name: '站点详情' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'GitHub' })).toBeInTheDocument()
+    expect(screen.getAllByRole('heading', { name: 'GitHub' }).length).toBeGreaterThan(0)
 
     await fireEvent.click(screen.getByRole('link', { name: '返回我的站点' }))
     await fireEvent.click(await screen.findByRole('button', { name: '新增站点' }))
