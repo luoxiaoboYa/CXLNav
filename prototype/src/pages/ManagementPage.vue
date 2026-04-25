@@ -24,6 +24,7 @@ import { computed, ref } from 'vue'
 
 import CategoryManagementPanel from '../components/management/CategoryManagementPanel.vue'
 import AccountSecurityPanel from '../components/management/AccountSecurityPanel.vue'
+import BookmarkPathManagementPanel from '../components/management/BookmarkPathManagementPanel.vue'
 import DisplayPreferencesPanel from '../components/management/DisplayPreferencesPanel.vue'
 import ImportExportPanel from '../components/management/ImportExportPanel.vue'
 import ManagementSidebar from '../components/management/ManagementSidebar.vue'
@@ -40,6 +41,7 @@ const panelMap = {
   站点管理: SiteManagementPanel,
   分类管理: CategoryManagementPanel,
   标签管理: TagManagementPanel,
+  书签路径管理: BookmarkPathManagementPanel,
   '分享 / 推荐管理': ShareManagementPanel,
   个人中心: PersonalCenterPanel,
   账号安全: AccountSecurityPanel,

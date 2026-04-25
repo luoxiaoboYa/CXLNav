@@ -9,7 +9,20 @@
           <span>{{ item.count }} 个站点</span>
         </div>
         <p>{{ item.description }}</p>
-        <button type="button">编辑分类</button>
+        <dl class="meta-list">
+          <div>
+            <dt>待整理</dt>
+            <dd>{{ item.pendingCount }} 个</dd>
+          </div>
+          <div>
+            <dt>默认导出路径</dt>
+            <dd>{{ item.exportPath }}</dd>
+          </div>
+        </dl>
+        <div class="actions">
+          <button type="button">编辑分类</button>
+          <button type="button">调整排序</button>
+        </div>
       </article>
     </div>
   </section>
@@ -46,14 +59,41 @@ import { categoryRecords } from '../../data/settings'
   gap: 12px;
 }
 
+.meta-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.meta-list div {
+  padding: 10px;
+  border-radius: 14px;
+  background: #fbf8f2;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 h3,
-p {
+p,
+dt,
+dd {
   margin: 0;
 }
 
 p,
-span {
+span,
+dd {
   color: #61685f;
+}
+
+dt {
+  margin-bottom: 4px;
+  font-weight: 700;
 }
 
 button {
@@ -67,6 +107,10 @@ button {
 
 @media (max-width: 960px) {
   .card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .meta-list {
     grid-template-columns: 1fr;
   }
 }

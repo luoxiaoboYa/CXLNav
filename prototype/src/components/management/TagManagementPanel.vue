@@ -7,8 +7,13 @@
         <div>
           <h3>{{ item.name }}</h3>
           <p>{{ item.intent }}</p>
+          <p v-if="item.mergeSuggestion" class="merge-hint">{{ item.mergeSuggestion }}</p>
         </div>
-        <span>{{ item.usageCount }} 次使用</span>
+        <div class="tag-actions">
+          <span>{{ item.usageCount }} 次使用</span>
+          <button type="button">重命名</button>
+          <button type="button">合并标签</button>
+        </div>
       </article>
     </div>
   </section>
@@ -36,6 +41,12 @@ import { tagRecords } from '../../data/settings'
   background: #ffffff;
 }
 
+.tag-actions {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+
 h3,
 p {
   margin: 0;
@@ -44,6 +55,19 @@ p {
 p,
 span {
   color: #61685f;
+}
+
+.merge-hint {
+  margin-top: 8px;
+  color: #1b6a52;
+}
+
+button {
+  border: 1px solid #d7d2c6;
+  border-radius: 12px;
+  background: #fbf8f2;
+  padding: 8px 10px;
+  font: inherit;
 }
 
 @media (max-width: 960px) {

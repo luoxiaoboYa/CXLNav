@@ -8,6 +8,26 @@ describe('management center panels', () => {
 
     expect(screen.getByRole('heading', { name: '站点管理' })).toBeInTheDocument()
 
+    await fireEvent.click(screen.getByRole('button', { name: '分类管理' }))
+    expect(screen.getByRole('heading', { name: '分类管理' })).toBeInTheDocument()
+    expect(screen.getAllByText('默认导出路径').length).toBeGreaterThan(0)
+
+    await fireEvent.click(screen.getByRole('button', { name: '标签管理' }))
+    expect(screen.getByRole('heading', { name: '标签管理' })).toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: '合并标签' }).length).toBeGreaterThan(0)
+
+    await fireEvent.click(screen.getByRole('button', { name: '书签路径管理' }))
+    expect(screen.getByRole('heading', { name: '书签路径管理' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '批量迁移站点' })).toBeInTheDocument()
+
+    await fireEvent.click(screen.getByRole('button', { name: '分享 / 推荐管理' }))
+    expect(screen.getByRole('heading', { name: '分享 / 推荐管理' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '后台治理能力' })).toBeInTheDocument()
+
+    await fireEvent.click(screen.getByRole('button', { name: '导入 / 导出' }))
+    expect(screen.getByRole('heading', { name: '导入 / 导出' })).toBeInTheDocument()
+    expect(screen.getByText('默认按 CXSearch 当前结构导出')).toBeInTheDocument()
+
     await fireEvent.click(screen.getByRole('button', { name: '个人中心' }))
     expect(screen.getByRole('heading', { name: '个人中心' })).toBeInTheDocument()
 
