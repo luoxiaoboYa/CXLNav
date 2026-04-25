@@ -48,6 +48,13 @@
 
     <SearchBar placeholder="搜索我的站点、分类或标签…" />
 
+    <section class="status-overview" aria-label="站点状态概览">
+      <article v-for="item in statusOverview" :key="item.label" class="status-card">
+        <strong>{{ item.count }}</strong>
+        <span>{{ item.label }}</span>
+      </article>
+    </section>
+
     <div class="layout">
       <aside data-testid="category-sidebar" class="panel sidebar-panel sticky-sidebar">
         <SectionHeader title="分类" description="用侧边栏承接分类浏览，筛选动作更直观。" />
@@ -92,6 +99,21 @@
             </div>
           </div>
 
+          <div class="toolbar-group">
+            <span class="toolbar-label">状态筛选</span>
+            <div class="tag-filter">
+              <button
+                v-for="option in statusFilters"
+                :key="option.value"
+                :class="['tag-chip', { active: activeStatus === option.value }]"
+                type="button"
+                @click="activeStatus = option.value"
+              >
+                {{ option.label }}
+              </button>
+            </div>
+          </div>
+
           <p class="result-summary">当前展示 {{ filteredSites.length }} 个站点</p>
         </section>
 
@@ -113,10 +135,20 @@
                 </div>
               </div>
               <p>{{ site.description }}</p>
+              <div class="site-meta-row">
+                <span>{{ site.bookmarkPath }}</span>
+                <span>{{ getStatusLabel(site.organizeStatus) }}</span>
+                <span v-if="site.archiveStatus === 'archived'">已归档</span>
+              </div>
               <ul class="card-tags">
                 <li>{{ site.category }}</li>
                 <li v-for="tag in site.tags" :key="`${site.title}-${tag}`">{{ tag }}</li>
               </ul>
+              <div class="quick-actions">
+                <button class="ghost-action" type="button">打开</button>
+                <button class="ghost-action" type="button">{{ site.archiveStatus === 'archived' ? '恢复' : '归档' }}</button>
+                <button class="ghost-action" type="button" :disabled="!canShare(site)">共享到推荐库</button>
+              </div>
             </article>
           </div>
 
@@ -136,10 +168,37 @@
                 </div>
               </div>
               <p class="detail-note">{{ site.detail }}</p>
+              <dl class="detail-meta">
+                <div>
+                  <dt>书签路径</dt>
+                  <dd>{{ site.bookmarkPath }}</dd>
+                </div>
+                <div>
+                  <dt>最近打开</dt>
+                  <dd>{{ site.lastOpenedAt }}</dd>
+                </div>
+                <div>
+                  <dt>安全状态</dt>
+                  <dd>{{ getSecurityLabel(site.securityStatus) }}</dd>
+                </div>
+                <div>
+                  <dt>共享状态</dt>
+                  <dd>{{ getShareLabel(site.shareStatus) }}</dd>
+                </div>
+              </dl>
+              <p v-if="site.recommendationHint" class="recommendation-hint">
+                {{ site.recommendationHint }} · 平台标签只作为建议，不会自动写入个人标签。
+              </p>
               <ul class="detail-tags">
                 <li>{{ site.category }}</li>
                 <li v-for="tag in site.tags" :key="`${site.title}-detail-${tag}`">{{ tag }}</li>
               </ul>
+              <div class="quick-actions">
+                <button class="ghost-action" type="button">打开</button>
+                <button class="ghost-action" type="button">补充说明</button>
+                <button class="ghost-action" type="button">重新检测</button>
+                <button class="ghost-action" type="button" :disabled="!canShare(site)">共享到推荐库</button>
+              </div>
             </article>
           </div>
         </section>
@@ -162,8 +221,18 @@ import { getSiteDetailPath, mySiteEntries, siteTags, type SiteRecord } from '../
 const viewMode = ref<'simple' | 'detail'>('simple')
 const activeCategory = ref('全部分类')
 const selectedTags = ref<string[]>([])
+const activeStatus = ref<'all' | 'active' | 'todo' | 'archived' | 'link_problem' | 'risky'>('all')
 const isEditorOpen = ref(false)
 const editingSite = ref<SiteRecord | undefined>()
+
+const statusFilters = [
+  { label: '全部', value: 'all' },
+  { label: '正常', value: 'active' },
+  { label: '待整理', value: 'todo' },
+  { label: '已归档', value: 'archived' },
+  { label: '链接异常', value: 'link_problem' },
+  { label: '风险', value: 'risky' }
+] as const
 
 const categoryItems = computed(() => {
   const counts = new Map<string, number>()
@@ -185,10 +254,56 @@ const filteredSites = computed(() =>
     const matchesTags =
       selectedTags.value.length === 0 ||
       selectedTags.value.every((tag) => site.tags.includes(tag))
+    const matchesStatus =
+      activeStatus.value === 'all' ||
+      (activeStatus.value === 'active' && site.archiveStatus === 'active') ||
+      (activeStatus.value === 'todo' && site.organizeStatus !== 'complete') ||
+      (activeStatus.value === 'archived' && site.archiveStatus === 'archived') ||
+      (activeStatus.value === 'link_problem' && site.securityStatus === 'unreachable') ||
+      (activeStatus.value === 'risky' && ['risky', 'blocked'].includes(site.securityStatus))
 
-    return matchesCategory && matchesTags
+    return matchesCategory && matchesTags && matchesStatus
   })
 )
+
+const statusOverview = computed(() => [
+  { label: '全部站点', count: mySiteEntries.length },
+  { label: '待整理', count: mySiteEntries.filter((site) => site.organizeStatus !== 'complete').length },
+  { label: '已归档', count: mySiteEntries.filter((site) => site.archiveStatus === 'archived').length },
+  { label: '链接异常', count: mySiteEntries.filter((site) => site.securityStatus === 'unreachable').length }
+])
+
+const statusLabels: Record<SiteRecord['organizeStatus'], string> = {
+  complete: '信息完整',
+  missing_description: '缺少说明',
+  missing_tags: '缺少标签',
+  duplicate_suspected: '疑似重复',
+  link_problem: '链接异常',
+  path_pending: '路径待确认',
+  stale: '长期未打开'
+}
+
+const securityLabels: Record<SiteRecord['securityStatus'], string> = {
+  unchecked: '未校验',
+  checking: '校验中',
+  safe: '正常',
+  unreachable: '无法访问',
+  risky: '存在风险',
+  blocked: '已阻止'
+}
+
+const shareLabels: Record<SiteRecord['shareStatus'], string> = {
+  none: '未共享',
+  pending: '审核中',
+  published: '已发布',
+  rejected: '审核拒绝'
+}
+
+const getStatusLabel = (status: SiteRecord['organizeStatus']) => statusLabels[status]
+const getSecurityLabel = (status: SiteRecord['securityStatus']) => securityLabels[status]
+const getShareLabel = (status: SiteRecord['shareStatus']) => shareLabels[status]
+
+const canShare = (site: SiteRecord) => site.securityStatus === 'safe' && site.archiveStatus === 'active'
 
 const toggleTag = (tag: string) => {
   selectedTags.value = selectedTags.value.includes(tag)
@@ -244,7 +359,9 @@ const closeModal = () => {
 .tag-filter,
 .card-top,
 .detail-actions,
-.card-actions {
+.card-actions,
+.quick-actions,
+.site-meta-row {
   display: flex;
   gap: 10px;
   align-items: center;
@@ -313,11 +430,39 @@ const closeModal = () => {
   background: rgba(255, 253, 248, 0.96);
 }
 
+.status-overview {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.status-card {
+  display: grid;
+  gap: 4px;
+  padding: 16px;
+  border: 1px solid #d7d2c6;
+  border-radius: 20px;
+  background: #ffffff;
+}
+
+.status-card strong {
+  color: #1b6a52;
+  font-size: 1.5rem;
+}
+
+.status-card span,
+.site-meta-row,
+.recommendation-hint,
+.detail-meta {
+  color: #61685f;
+  font-size: 0.88rem;
+}
+
 .toolbar {
   display: flex;
   justify-content: space-between;
   gap: 20px;
-  align-items: center;
+  align-items: start;
 }
 
 .toolbar-group {
@@ -430,6 +575,24 @@ const closeModal = () => {
   text-decoration: none;
 }
 
+.ghost-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.site-meta-row,
+.quick-actions {
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.site-meta-row span,
+.recommendation-hint {
+  border-radius: 999px;
+  background: #f8f2e8;
+  padding: 6px 10px;
+}
+
 .card-tags,
 .detail-tags {
   display: flex;
@@ -467,11 +630,44 @@ const closeModal = () => {
   line-height: 1.6;
 }
 
+.detail-meta {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 16px 0 0;
+}
+
+.detail-meta div {
+  padding: 12px;
+  border-radius: 16px;
+  background: #fbf8f2;
+}
+
+.detail-meta dt,
+.detail-meta dd {
+  margin: 0;
+}
+
+.detail-meta dt {
+  margin-bottom: 4px;
+  font-weight: 700;
+  color: #1f251f;
+}
+
+.recommendation-hint {
+  margin: 14px 0 0;
+  border-radius: 16px;
+  background: #deeee7;
+  color: #1b6a52;
+}
+
 @media (max-width: 960px) {
   .page-header,
   .layout,
   .card-grid,
-  .detail-top {
+  .detail-top,
+  .status-overview,
+  .detail-meta {
     grid-template-columns: 1fr;
     display: grid;
   }

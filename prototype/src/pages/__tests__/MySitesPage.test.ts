@@ -23,6 +23,8 @@ describe('my sites page', () => {
     expect(screen.getByRole('button', { name: '切换到详情模式' })).toBeInTheDocument()
     expect(screen.queryByText('分类概览')).not.toBeInTheDocument()
 
+    await fireEvent.click(screen.getByRole('button', { name: '切换到详情模式' }))
+
     const categorySidebar = screen.getByTestId('category-sidebar')
     const contentColumn = screen.getByTestId('sites-content-column')
 
@@ -31,6 +33,12 @@ describe('my sites page', () => {
     expect(contentColumn).toContainElement(screen.getByText('标签筛选'))
     expect(contentColumn).toContainElement(screen.getByText(/当前展示 \d+ 个站点/))
     expect(contentColumn).toContainElement(screen.getByRole('heading', { name: '浏览结果' }))
+    expect(screen.getByLabelText('站点状态概览')).toBeInTheDocument()
+    expect(screen.getAllByRole('button', { name: '待整理' }).length).toBeGreaterThan(0)
+    expect(screen.getAllByRole('button', { name: '已归档' }).length).toBeGreaterThan(0)
+    expect(screen.getAllByText('书签路径').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('共享状态').length).toBeGreaterThan(0)
+    expect(screen.getAllByRole('button', { name: '共享到推荐库' }).length).toBeGreaterThan(0)
     expect(screen.getAllByRole('link', { name: '查看详情' }).length).toBeGreaterThan(0)
 
     await fireEvent.click(screen.getAllByRole('link', { name: '查看详情' })[0])
