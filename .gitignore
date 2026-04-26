@@ -6,6 +6,7 @@ prototype/node_modules/
 dist/
 prototype/dist/
 build/
+target/
 coverage/
 prototype/coverage/
 

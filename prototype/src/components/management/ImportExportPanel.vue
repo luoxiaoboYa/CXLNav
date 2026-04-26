@@ -24,12 +24,72 @@
       <h3>导入预览规则</h3>
       <p>浏览器书签导入必须先预览，重复 URL 默认保留多个收藏位置，问题项进入待整理。</p>
     </section>
+
+    <section class="preview-panel" aria-label="导入预览清单">
+      <div>
+        <h3>导入预览清单</h3>
+        <p>选择书签 HTML 后先展示统计和冲突项，用户确认后才写入我的站点。</p>
+      </div>
+
+      <div class="status-tabs" aria-label="导入预览状态筛选">
+        <button
+          v-for="status in previewStatusTabs"
+          :key="status"
+          :class="['tab-button', { active: activePreviewStatus === status }]"
+          type="button"
+          @click="activePreviewStatus = status"
+        >
+          {{ status }} {{ getPreviewStatusCount(status) }}
+        </button>
+      </div>
+
+      <div class="preview-grid">
+        <article v-for="item in visiblePreviewItems" :key="item.title" class="preview-card">
+          <strong>{{ item.status }}</strong>
+          <h4>{{ item.title }}</h4>
+          <p>{{ item.path }}</p>
+          <span>{{ item.action }}</span>
+        </article>
+      </div>
+
+      <p v-if="visiblePreviewItems.length === 0" class="empty-state">当前状态下暂无导入项。</p>
+
+      <div class="preview-actions">
+        <button type="button">确认导入</button>
+        <button type="button">只导入无冲突项</button>
+      </div>
+    </section>
   </section>
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from 'vue'
+
 import SectionHeader from '../SectionHeader.vue'
 import { importExportRecords } from '../../data/settings'
+
+const previewItems = [
+  { title: 'Vue Router', path: '开发文档 / 前端 / Vue', status: '可导入', action: '创建新站点' },
+  { title: 'MDN Web Docs', path: '开发文档 / 前端 / 规范', status: '疑似重复', action: '保留多个收藏位置' },
+  { title: '旧版素材站', path: '设计资源 / 素材', status: '链接异常', action: '导入后进入待整理中心' }
+]
+
+const previewStatusTabs = ['全部状态', '可导入', '疑似重复', '链接异常'] as const
+const activePreviewStatus = ref<(typeof previewStatusTabs)[number]>('全部状态')
+
+const visiblePreviewItems = computed(() =>
+  activePreviewStatus.value === '全部状态'
+    ? previewItems
+    : previewItems.filter((item) => item.status === activePreviewStatus.value)
+)
+
+const getPreviewStatusCount = (status: (typeof previewStatusTabs)[number]) => {
+  if (status === '全部状态') {
+    return previewItems.length
+  }
+
+  return previewItems.filter((item) => item.status === status).length
+}
 </script>
 
 <style scoped>
@@ -89,6 +149,57 @@ dt {
   background: #f5fbf8;
 }
 
+.preview-panel {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid #b8c9be;
+  border-radius: 18px;
+  background: #f5fbf8;
+}
+
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.preview-card {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid #d7d2c6;
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.preview-card strong {
+  color: #1b6a52;
+}
+
+.preview-card h4,
+.preview-card span {
+  margin: 0;
+}
+
+.preview-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.status-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.empty-state {
+  margin: 0;
+  color: #1b6a52;
+  font-weight: 700;
+}
+
 button {
   justify-self: start;
   border: 1px solid #d7d2c6;
@@ -98,8 +209,23 @@ button {
   font: inherit;
 }
 
+.tab-button {
+  color: #61685f;
+}
+
+.tab-button.active {
+  border-color: #1b6a52;
+  background: #deeee7;
+  color: #1b6a52;
+  font-weight: 700;
+}
+
 @media (max-width: 960px) {
   .card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-grid {
     grid-template-columns: 1fr;
   }
 }

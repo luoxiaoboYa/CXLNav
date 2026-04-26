@@ -28,6 +28,7 @@ import BookmarkPathManagementPanel from '../components/management/BookmarkPathMa
 import DisplayPreferencesPanel from '../components/management/DisplayPreferencesPanel.vue'
 import ImportExportPanel from '../components/management/ImportExportPanel.vue'
 import ManagementSidebar from '../components/management/ManagementSidebar.vue'
+import OrganizeCenterPanel from '../components/management/OrganizeCenterPanel.vue'
 import PersonalCenterPanel from '../components/management/PersonalCenterPanel.vue'
 import PluginManagementPanel from '../components/management/PluginManagementPanel.vue'
 import RecycleBinPanel from '../components/management/RecycleBinPanel.vue'
@@ -39,6 +40,7 @@ const activeItem = ref('站点管理')
 
 const panelMap = {
   站点管理: SiteManagementPanel,
+  待整理中心: OrganizeCenterPanel,
   分类管理: CategoryManagementPanel,
   标签管理: TagManagementPanel,
   书签路径管理: BookmarkPathManagementPanel,

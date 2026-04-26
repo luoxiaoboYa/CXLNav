@@ -4,7 +4,7 @@
       <div class="modal-top">
         <div>
           <h2 id="site-editor-modal-title">新增 / 编辑站点</h2>
-          <p>统一用弹窗完成录入和修改，后续开发可以直接复用这套表单结构。</p>
+          <p>统一用弹窗完成录入和修改，保存后写入后端个人站点接口。</p>
         </div>
         <button aria-label="关闭弹窗" class="ghost-button" type="button" @click="emit('close')">
           关闭
@@ -12,31 +12,42 @@
       </div>
 
       <SiteEditorForm
+        :categories="categories"
         :description="'保持轻量录入，同时保留分类、标签和说明字段。'"
         :site="site"
+        :tags="tags"
+        @change="draft = $event"
       />
 
       <div class="modal-actions">
         <button class="ghost-button" type="button" @click="emit('close')">取消</button>
-        <button class="primary-button" type="button">保存站点</button>
+        <button class="primary-button" type="button" @click="emit('save', draft)">保存站点</button>
       </div>
     </section>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
+
 import type { SiteRecord } from '../data/sites'
+import type { CategoryDto, PersonalSiteDto, SitePayload, TagDto } from '../services/api'
 
 import SiteEditorForm from './SiteEditorForm.vue'
 
 defineProps<{
   open: boolean
-  site?: Partial<SiteRecord & { url: string }>
+  site?: Partial<PersonalSiteDto> | Partial<SiteRecord>
+  categories?: CategoryDto[]
+  tags?: TagDto[]
 }>()
 
 const emit = defineEmits<{
   close: []
+  save: [payload: SitePayload]
 }>()
+
+const draft = ref<SitePayload>({ url: '', source: 'manual' })
 </script>
 
 <style scoped>

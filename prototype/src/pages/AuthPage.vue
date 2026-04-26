@@ -2,62 +2,109 @@
   <section class="page">
     <header class="page-header">
       <h1>登录与注册</h1>
-      <p>支持账号体系登录、邮箱注册，以及第三方快速授权登录。</p>
+      <p>MVP 支持邮箱 + 密码登录注册；第三方授权仅保留二期占位。</p>
     </header>
 
     <section class="notice-panel">
       <div>
         <strong>初始账号</strong>
-        <p>原型预设 `cxsearch_demo` 账号，可在后续个人中心中修改账号信息。</p>
+        <p v-if="auth.state.user">当前已登录：{{ auth.state.user.nickname }}（{{ auth.state.user.email }}）</p>
+        <p v-else>注册或登录后，管理中心会使用真实后端数据。</p>
       </div>
-      <span class="notice-tag">可修改</span>
+      <button v-if="auth.state.user" class="notice-tag button-tag" type="button" @click="handleLogout">退出登录</button>
+      <span v-else class="notice-tag">Bearer Token</span>
     </section>
 
+    <p v-if="message" class="status-message">{{ message }}</p>
+    <p v-if="auth.state.error" class="error-message">{{ auth.state.error }}</p>
+
     <div class="auth-layout">
-      <section class="panel">
+      <form class="panel" @submit.prevent="handleLogin">
         <h2>登录</h2>
         <label>
           <span>账号 / 邮箱</span>
-          <input type="text" placeholder="cxsearch_demo 或 name@example.com" />
+          <input v-model="loginEmail" type="email" placeholder="name@example.com" />
         </label>
         <label>
           <span>密码</span>
-          <input type="password" placeholder="输入密码" />
+          <input v-model="loginPassword" type="password" placeholder="输入密码" />
         </label>
         <a class="text-link" href="#">忘记密码</a>
-        <button type="button">继续登录</button>
+        <button type="submit" :disabled="auth.state.loading">{{ auth.state.loading ? '处理中…' : '继续登录' }}</button>
 
-        <div class="divider">或使用快捷授权</div>
+        <div class="divider">二期快捷授权占位</div>
 
         <div class="social-actions">
-          <button type="button" class="secondary">使用谷歌登录</button>
-          <button type="button" class="secondary">使用 Git 登录</button>
+          <button type="button" class="secondary" disabled>Google OAuth（二期）</button>
+          <button type="button" class="secondary" disabled>GitHub OAuth（二期）</button>
         </div>
-      </section>
+      </form>
 
-      <section class="panel">
+      <form class="panel" @submit.prevent="handleRegister">
         <h2>注册</h2>
         <label>
           <span>昵称</span>
-          <input type="text" placeholder="你的称呼" />
+          <input v-model="registerNickname" type="text" placeholder="你的称呼" />
         </label>
         <label>
           <span>邮箱</span>
-          <input type="email" placeholder="name@example.com" />
+          <input v-model="registerEmail" type="email" placeholder="name@example.com" />
         </label>
         <label>
           <span>设置密码</span>
-          <input type="password" placeholder="至少 8 位密码" />
+          <input v-model="registerPassword" type="password" placeholder="至少 6 位密码" />
         </label>
         <label>
           <span>确认密码</span>
-          <input type="password" placeholder="再次输入密码" />
+          <input v-model="confirmPassword" type="password" placeholder="再次输入密码" />
         </label>
-        <button type="button">创建账号</button>
-      </section>
+        <button type="submit" :disabled="auth.state.loading">{{ auth.state.loading ? '处理中…' : '创建账号' }}</button>
+      </form>
     </div>
   </section>
 </template>
+
+<script setup lang="ts">
+import { onMounted, ref } from 'vue'
+
+import { useAuth } from '../services/auth'
+
+const auth = useAuth()
+
+const loginEmail = ref('')
+const loginPassword = ref('')
+const registerNickname = ref('')
+const registerEmail = ref('')
+const registerPassword = ref('')
+const confirmPassword = ref('')
+const message = ref('')
+
+onMounted(() => {
+  void auth.loadMe()
+})
+
+const handleLogin = async () => {
+  message.value = ''
+  await auth.login(loginEmail.value, loginPassword.value)
+  message.value = '登录成功，管理中心已可读取真实后端数据。'
+}
+
+const handleRegister = async () => {
+  message.value = ''
+  if (registerPassword.value !== confirmPassword.value) {
+    message.value = '两次输入的密码不一致。'
+    return
+  }
+
+  await auth.register(registerEmail.value, registerPassword.value, registerNickname.value)
+  message.value = '注册成功，已自动登录。'
+}
+
+const handleLogout = async () => {
+  await auth.logout()
+  message.value = '已退出登录。'
+}
+</script>
 
 <style scoped>
 .page,
@@ -111,6 +158,26 @@
   font-weight: 600;
 }
 
+.button-tag {
+  border: 1px solid #b8c9be;
+  font: inherit;
+}
+
+.status-message,
+.error-message {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: #f5fbf8;
+  color: #1b6a52;
+  font-weight: 700;
+}
+
+.error-message {
+  background: #fff2dc;
+  color: #7b4a17;
+}
+
 label {
   display: grid;
   gap: 8px;
@@ -136,6 +203,10 @@ button {
   background: #1b6a52;
   border-color: #1b6a52;
   color: #ffffff;
+}
+
+button:disabled {
+  opacity: 0.68;
 }
 
 .text-link {

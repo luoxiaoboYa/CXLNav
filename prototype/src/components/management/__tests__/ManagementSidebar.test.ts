@@ -7,6 +7,7 @@ describe('management sidebar', () => {
     render(ManagementSidebar)
 
     expect(screen.getByText('站点管理')).toBeInTheDocument()
+    expect(screen.getByText('待整理中心')).toBeInTheDocument()
     expect(screen.getByText('分类管理')).toBeInTheDocument()
     expect(screen.getByText('标签管理')).toBeInTheDocument()
     expect(screen.getByText('分享 / 推荐管理')).toBeInTheDocument()

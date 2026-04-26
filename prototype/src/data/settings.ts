@@ -5,6 +5,14 @@ export type SiteManagementRecord = {
   updatedAt: string
 }
 
+export type OrganizeRecord = {
+  title: string
+  reason: string
+  source: string
+  suggestedAction: string
+  priority: string
+}
+
 export type CategoryRecord = {
   name: string
   count: number
@@ -70,6 +78,30 @@ export const siteManagementRecords: SiteManagementRecord[] = [
   { name: 'GitHub', category: '开发文档', status: '已整理', updatedAt: '今天 09:20' },
   { name: 'Figma Community', category: '设计资源', status: '待补标签', updatedAt: '今天 08:10' },
   { name: 'MDN Web Docs', category: '开发文档', status: '待整理', updatedAt: '3 天前' }
+]
+
+export const organizeRecords: OrganizeRecord[] = [
+  {
+    title: 'MDN Web Docs',
+    reason: '缺少个人说明，无法解释为什么常用。',
+    source: '浏览器书签导入',
+    suggestedAction: '补充用途说明和常用标签',
+    priority: '高'
+  },
+  {
+    title: 'Vue Router / Router 文档',
+    reason: '规范化 URL 后疑似重复。',
+    source: '登录后本地与云端合并',
+    suggestedAction: '合并标签，保留最早收藏时间',
+    priority: '中'
+  },
+  {
+    title: '旧版图标资源站',
+    reason: '长期未打开，且链接校验显示疑似失效。',
+    source: '站点管理',
+    suggestedAction: '重新检测或移入归档',
+    priority: '低'
+  }
 ]
 
 export const categoryRecords: CategoryRecord[] = [
@@ -140,7 +172,7 @@ export const profileRecords: ProfileRecord[] = [
 ]
 
 export const securityRecords: SecurityRecord[] = [
-  { title: '登录方式', status: 'Google + Git 登录已接入原型', hint: '后续开发可绑定本地账号体系。' },
+  { title: '登录方式', status: 'MVP 使用邮箱 + 密码', hint: 'Google / GitHub OAuth 已调整为二期占位。' },
   { title: '密码状态', status: '已支持找回密码入口', hint: '注册表单已包含确认密码。' },
   { title: '设备提醒', status: '最近一次登录：今天 09:20', hint: '后续可扩展为登录设备列表。' }
 ]

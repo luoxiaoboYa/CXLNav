@@ -1,22 +1,27 @@
-<template>
+﻿<template>
   <section class="management-panel">
     <SectionHeader title="站点管理" description="默认入口，承接最常用的整理与维护动作。" />
 
     <div class="toolbar">
-      <label>
-        <span>状态筛选</span>
-        <select aria-label="状态筛选">
-          <option>全部状态</option>
-          <option>已整理</option>
-          <option>待整理</option>
-          <option>待补标签</option>
-        </select>
-      </label>
+      <div class="status-tabs" aria-label="站点状态筛选">
+        <button
+          v-for="status in statusTabs"
+          :key="status"
+          :class="['tab-button', { active: activeStatus === status }]"
+          type="button"
+          @click="activeStatus = status"
+        >
+          {{ status }} {{ getStatusCount(status) }}
+        </button>
+      </div>
       <button type="button" @click="openAdd">新增站点</button>
     </div>
 
+    <p v-if="statusMessage" class="status-message">{{ statusMessage }}</p>
+    <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+
     <div class="table-list">
-      <article v-for="item in siteManagementRecords" :key="item.name" class="row-card">
+      <article v-for="item in visibleRecords" :key="item.id" class="row-card">
         <div>
           <h3>{{ item.name }}</h3>
           <p>{{ item.category }}</p>
@@ -24,44 +29,197 @@
         <strong>{{ item.status }}</strong>
         <div class="row-actions">
           <span>{{ item.updatedAt }}</span>
-          <button type="button" @click="openEdit(item.name)">编辑</button>
+          <button type="button" @click="openEdit(item.id)">编辑</button>
+          <button v-if="usingBackend" type="button" @click="deleteSite(item.id)">删除</button>
         </div>
       </article>
     </div>
 
-    <SiteEditorModal :open="isEditorOpen" :site="activeSite" @close="closeModal" />
+    <p v-if="visibleRecords.length === 0" class="empty-state">当前状态下暂无站点。</p>
+
+    <SiteEditorModal
+      :categories="categories"
+      :open="isEditorOpen"
+      :site="activeSite"
+      :tags="tags"
+      @close="closeModal"
+      @save="saveSite"
+    />
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 import SectionHeader from '../SectionHeader.vue'
 import SiteEditorModal from '../SiteEditorModal.vue'
-import { mySiteEntries } from '../../data/sites'
 import { siteManagementRecords } from '../../data/settings'
+import { api, getStoredToken, type CategoryDto, type PersonalSiteDto, type SitePayload, type TagDto } from '../../services/api'
+
+type SiteRow = {
+  id: string
+  name: string
+  category: string
+  status: (typeof statusTabs)[number]
+  updatedAt: string
+}
 
 const isEditorOpen = ref(false)
-const activeSiteName = ref<string | null>(null)
+const activeSiteId = ref<string | null>(null)
+const statusTabs = ['全部状态', '已整理', '待整理', '待补标签'] as const
+const activeStatus = ref<(typeof statusTabs)[number]>('全部状态')
+const remoteSites = ref<PersonalSiteDto[]>([])
+const categories = ref<CategoryDto[]>([])
+const tags = ref<TagDto[]>([])
+const usingBackend = ref(false)
+const statusMessage = ref('')
+const errorMessage = ref('')
 
-const activeSite = computed(() =>
-  mySiteEntries.find((site) => site.title === activeSiteName.value) ?? undefined
+const fallbackRows = siteManagementRecords.map((item) => ({
+  id: item.name,
+  name: item.name,
+  category: item.category,
+  status: item.status as (typeof statusTabs)[number],
+  updatedAt: item.updatedAt
+}))
+
+const rows = computed<SiteRow[]>(() => {
+  if (!usingBackend.value) {
+    return fallbackRows
+  }
+
+  return remoteSites.value.map((site) => ({
+    id: site.id,
+    name: site.title || site.url,
+    category: site.category?.name ?? '未分类',
+    status: toStatusLabel(site.organizeStatus),
+    updatedAt: formatTime(site.updatedAt)
+  }))
+})
+
+const activeSite = computed(() => {
+  if (!usingBackend.value || !activeSiteId.value) {
+    return undefined
+  }
+
+  return remoteSites.value.find((site) => site.id === activeSiteId.value)
+})
+
+const visibleRecords = computed(() =>
+  activeStatus.value === '全部状态'
+    ? rows.value
+    : rows.value.filter((item) => item.status === activeStatus.value)
 )
 
-const openEdit = (siteName: string) => {
-  activeSiteName.value = siteName
+const getStatusCount = (status: (typeof statusTabs)[number]) => {
+  if (status === '全部状态') {
+    return rows.value.length
+  }
+
+  return rows.value.filter((item) => item.status === status).length
+}
+
+const loadRemoteData = async () => {
+  if (!getStoredToken()) {
+    usingBackend.value = false
+    statusMessage.value = '当前未登录，展示原型站点数据；登录后自动使用后端接口。'
+    return
+  }
+
+  try {
+    const [siteResponse, categoryResponse, tagResponse] = await Promise.all([
+      api.listPersonalSites(),
+      api.listCategories(),
+      api.listTags()
+    ])
+    remoteSites.value = siteResponse.items
+    categories.value = categoryResponse.items
+    tags.value = tagResponse.items
+    usingBackend.value = true
+    statusMessage.value = '已连接后端个人站点接口。'
+  } catch (error) {
+    usingBackend.value = false
+    errorMessage.value = error instanceof Error ? error.message : '站点接口暂不可用，已展示原型数据。'
+  }
+}
+
+const openEdit = (siteId: string) => {
+  activeSiteId.value = siteId
   isEditorOpen.value = true
 }
 
 const openAdd = () => {
-  activeSiteName.value = null
+  activeSiteId.value = null
   isEditorOpen.value = true
 }
 
 const closeModal = () => {
-  activeSiteName.value = null
+  activeSiteId.value = null
   isEditorOpen.value = false
 }
+
+const saveSite = async (payload: SitePayload) => {
+  statusMessage.value = ''
+  errorMessage.value = ''
+
+  if (!usingBackend.value) {
+    statusMessage.value = '当前展示原型数据；请先登录再保存到后端。'
+    closeModal()
+    return
+  }
+
+  if (!payload.url?.trim()) {
+    errorMessage.value = '站点链接不能为空。'
+    return
+  }
+
+  if (activeSiteId.value) {
+    const response = await api.updatePersonalSite(activeSiteId.value, payload)
+    remoteSites.value = remoteSites.value.map((site) => site.id === activeSiteId.value ? response.site : site)
+    statusMessage.value = `已更新站点“${response.site.title}”。`
+  } else {
+    const response = await api.createPersonalSite(payload)
+    remoteSites.value = [response.site, ...remoteSites.value]
+    statusMessage.value = `已新增站点“${response.site.title}”。`
+  }
+
+  closeModal()
+}
+
+const deleteSite = async (siteId: string) => {
+  await api.deletePersonalSite(siteId)
+  remoteSites.value = remoteSites.value.filter((site) => site.id !== siteId)
+  statusMessage.value = '已删除站点。'
+}
+
+const toStatusLabel = (organizeStatus: string): (typeof statusTabs)[number] => {
+  if (organizeStatus === 'complete') {
+    return '已整理'
+  }
+
+  if (organizeStatus === 'missing_tags') {
+    return '待补标签'
+  }
+
+  return '待整理'
+}
+
+const formatTime = (value: string | null) => {
+  if (!value) {
+    return '未记录'
+  }
+
+  return new Intl.DateTimeFormat('zh-CN', {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(new Date(value))
+}
+
+onMounted(() => {
+  void loadRemoteData()
+})
 </script>
 
 <style scoped>
@@ -74,15 +232,16 @@ const closeModal = () => {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  align-items: end;
+  align-items: center;
+  justify-content: space-between;
 }
 
-label {
-  display: grid;
+.status-tabs {
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
-select,
 button {
   border: 1px solid #d7d2c6;
   border-radius: 12px;
@@ -90,6 +249,18 @@ button {
   color: #1f251f;
   padding: 10px 12px;
   font: inherit;
+}
+
+.tab-button {
+  background: #fbf8f2;
+  color: #61685f;
+}
+
+.tab-button.active {
+  border-color: #1b6a52;
+  background: #deeee7;
+  color: #1b6a52;
+  font-weight: 700;
 }
 
 .table-list {
@@ -118,8 +289,22 @@ span {
   color: #61685f;
 }
 
+.status-message,
+.empty-state {
+  margin: 0;
+  color: #1b6a52;
+  font-weight: 700;
+}
+
+.error-message {
+  margin: 0;
+  color: #7b4a17;
+  font-weight: 700;
+}
+
 .row-actions {
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   justify-items: start;
 }

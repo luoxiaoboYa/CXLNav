@@ -41,13 +41,52 @@
       </article>
 
       <section class="panel action-panel" aria-label="个人站点操作">
-        <button class="primary-action" type="button" :disabled="!canShare">
+        <button class="primary-action" type="button" :disabled="!canShare" @click="shareFlowVisible = true">
           共享到推荐库
         </button>
         <button class="ghost-link" type="button">查看推荐库说明</button>
         <button class="ghost-link" type="button">补充备注</button>
         <button class="ghost-link" type="button">重新检测</button>
         <button class="danger-action" type="button">删除</button>
+      </section>
+
+      <section v-if="shareFlowVisible" class="panel share-flow-panel" aria-label="共享申请流程">
+        <div>
+          <span class="meta-chip">共享申请</span>
+          <h2>共享到推荐库</h2>
+          <p>共享只提交公开信息，个人备注、个人标签、书签路径和打开频率不会公开。</p>
+        </div>
+
+        <div class="share-form-grid">
+          <label>
+            <span>公开标题</span>
+            <input type="text" :value="site.title" />
+          </label>
+          <label>
+            <span>公开分类</span>
+            <select>
+              <option>{{ site.category }}</option>
+              <option>设计资源</option>
+              <option>效率工具</option>
+            </select>
+          </label>
+          <label class="full-width">
+            <span>推荐理由</span>
+            <textarea rows="3" placeholder="说明为什么值得推荐，公开展示给其他用户。"></textarea>
+          </label>
+        </div>
+
+        <ol class="flow-steps">
+          <li>URL 协议、内网地址、跳转链和超时校验。</li>
+          <li>重复检测：完整 URL 已存在时引导补充推荐理由，不重复创建推荐对象。</li>
+          <li>新主站点进入后台审核；已审核主站点下的功能站点可走快速审核。</li>
+          <li>审核通过后进入推荐发现，举报或风险命中后进入复审。</li>
+        </ol>
+
+        <div class="header-actions">
+          <button class="primary-action" type="button">提交共享申请</button>
+          <button class="ghost-link" type="button" @click="shareFlowVisible = false">取消</button>
+        </div>
       </section>
 
       <section class="detail-grid three-columns">
@@ -120,7 +159,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 
 import { findSiteByTitle } from '../data/sites'
@@ -129,6 +168,7 @@ const route = useRoute()
 const siteTitle = computed(() => String(route.params.siteTitle ?? ''))
 const site = computed(() => findSiteByTitle(siteTitle.value))
 const canShare = computed(() => site.value?.securityStatus === 'safe' && site.value.archiveStatus === 'active')
+const shareFlowVisible = ref(false)
 
 const organizeLabels = {
   complete: '信息完整',
@@ -235,6 +275,45 @@ h2 {
   border: 1px solid #d7d2c6;
   border-radius: 24px;
   background: rgba(255, 253, 248, 0.96);
+}
+
+.share-flow-panel {
+  display: grid;
+  gap: 16px;
+  border-color: #b8c9be;
+  background: #f5fbf8;
+}
+
+.share-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.share-form-grid label {
+  display: grid;
+  gap: 8px;
+}
+
+.share-form-grid input,
+.share-form-grid select,
+.share-form-grid textarea {
+  border: 1px solid #d7d2c6;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font: inherit;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.flow-steps {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 20px;
+  color: #61685f;
 }
 
 .hero-panel {
@@ -347,6 +426,10 @@ h2 {
 
   .header-actions {
     justify-content: start;
+  }
+
+  .share-form-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>

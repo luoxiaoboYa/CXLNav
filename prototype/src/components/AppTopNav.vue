@@ -16,7 +16,7 @@
     <div class="actions">
       <button type="button" aria-label="搜索">搜索</button>
       <ThemeToggle />
-      <RouterLink aria-label="设置" to="/settings">设置</RouterLink>
+      <RouterLink aria-label="设置" to="/settings">设置</RouterLink>`r`n      <RouterLink aria-label="设计稿" to="/ui-design">设计稿</RouterLink>
       <RouterLink aria-label="注册 / 登录" to="/auth">注册 / 登录</RouterLink>
     </div>
   </header>

@@ -85,11 +85,47 @@
             </div>
           </dl>
           <div class="card-actions">
-            <button class="primary-action" type="button">{{ item.collected ? '查看我的站点' : '收藏到我的站点' }}</button>
+            <button class="primary-action" type="button" @click="selectedRecommendation = item">
+              {{ item.collected ? '查看我的站点' : '收藏到我的站点' }}
+            </button>
             <button class="ghost-action" type="button">补充推荐理由</button>
             <button class="ghost-action" type="button">举报</button>
           </div>
         </article>
+      </div>
+    </section>
+
+    <section v-if="selectedRecommendation" class="panel collection-panel" aria-label="推荐收藏确认">
+      <div>
+        <span class="source-chip">收藏确认</span>
+        <h2>{{ selectedRecommendation.title }}</h2>
+        <p>从推荐库收藏到我的站点时，只复制公开标题、链接、描述和分类建议；平台标签只作为建议，不自动写入个人标签。</p>
+      </div>
+
+      <div class="collection-grid">
+        <label>
+          <span>保存到分类</span>
+          <select>
+            <option>{{ selectedRecommendation.category }}</option>
+            <option>开发文档</option>
+            <option>设计资源</option>
+            <option>效率工具</option>
+          </select>
+        </label>
+        <label>
+          <span>个人备注</span>
+          <input type="text" placeholder="补充只对自己可见的使用场景" />
+        </label>
+      </div>
+
+      <div class="suggestion-box">
+        <strong>平台标签建议</strong>
+        <p>{{ selectedRecommendation.tags.join(' / ') }}</p>
+      </div>
+
+      <div class="card-actions">
+        <button class="primary-action" type="button">确认收藏</button>
+        <button class="ghost-action" type="button" @click="selectedRecommendation = null">取消</button>
       </div>
     </section>
   </section>
@@ -111,6 +147,7 @@ const sortOptions = [
 
 const activeType = ref<(typeof typeFilters)[number]>('全部')
 const activeSort = ref<(typeof sortOptions)[number]['value']>('hot')
+const selectedRecommendation = ref<(typeof discoverFeed)[number] | null>(null)
 
 const filteredFeed = computed(() => {
   const typedFeed = discoverFeed.filter((item) => activeType.value === '全部' || item.type === activeType.value)
@@ -159,6 +196,38 @@ const summaryItems = computed(() => [
   border: 1px solid #d7d2c6;
   border-radius: 24px;
   background: rgba(255, 253, 248, 0.96);
+}
+
+.collection-panel {
+  display: grid;
+  gap: 16px;
+  border-color: #b8c9be;
+  background: #f5fbf8;
+}
+
+.collection-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.collection-grid label {
+  display: grid;
+  gap: 8px;
+}
+
+.collection-grid input,
+.collection-grid select {
+  border: 1px solid #d7d2c6;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font: inherit;
+}
+
+.suggestion-box {
+  padding: 12px;
+  border-radius: 16px;
+  background: #ffffff;
 }
 
 .discovery-summary {
@@ -318,6 +387,10 @@ h3,
   .filter-panel,
   .recommendation-meta {
     display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .collection-grid {
     grid-template-columns: 1fr;
   }
 }

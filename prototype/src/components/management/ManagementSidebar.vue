@@ -19,6 +19,7 @@ const emit = defineEmits<{
 
 const items = [
   '站点管理',
+  '待整理中心',
   '分类管理',
   '标签管理',
   '书签路径管理',

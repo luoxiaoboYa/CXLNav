@@ -8,6 +8,7 @@ import ManagementPage from '../pages/ManagementPage.vue'
 import MySitesPage from '../pages/MySitesPage.vue'
 import SiteDetailPage from '../pages/SiteDetailPage.vue'
 import SiteEditorPage from '../pages/SiteEditorPage.vue'
+import UIDesignPreviewPage from '../pages/UIDesignPreviewPage.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -19,7 +20,8 @@ const router = createRouter({
     { path: '/settings', name: 'settings', component: ManagementPage },
     { path: '/auth', name: 'auth', component: AuthPage },
     { path: '/site-editor', name: 'site-editor', component: SiteEditorPage },
-    { path: '/extension-popup', name: 'extension-popup', component: ExtensionPopupPage }
+    { path: '/extension-popup', name: 'extension-popup', component: ExtensionPopupPage },
+    { path: '/ui-design', name: 'ui-design', component: UIDesignPreviewPage }
   ]
 })
 

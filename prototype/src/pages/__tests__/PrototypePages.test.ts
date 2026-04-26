@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/vue'
+import { fireEvent, render, screen } from '@testing-library/vue'
 
 import App from '../../App.vue'
 import router from '../../router'
@@ -16,8 +16,8 @@ describe('remaining prototype routes', () => {
 
     expect(screen.getByRole('heading', { name: '登录与注册' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '继续登录' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '使用谷歌登录' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '使用 Git 登录' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Google OAuth（二期）' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'GitHub OAuth（二期）' })).toBeDisabled()
     expect(screen.getByRole('link', { name: '忘记密码' })).toBeInTheDocument()
     expect(screen.getByText('初始账号')).toBeInTheDocument()
   })
@@ -48,6 +48,8 @@ describe('remaining prototype routes', () => {
 
     expect(screen.getByRole('heading', { name: '插件快捷收藏' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '保存到我的站点' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '插件第一版边界' })).toBeInTheDocument()
+    expect(screen.getByText('共享到推荐库必须回到 Web 主站完成。')).toBeInTheDocument()
   })
 
   test('renders the site detail page structure', async () => {
@@ -72,5 +74,12 @@ describe('remaining prototype routes', () => {
     expect(screen.getByText('公开功能站点详情')).toBeInTheDocument()
     expect(screen.getByText(/平台标签只作为建议/)).toBeInTheDocument()
     expect(screen.getByRole('link', { name: '返回我的站点' })).toBeInTheDocument()
+
+    await fireEvent.click(screen.getByLabelText('个人站点操作').querySelector('button')!)
+
+    expect(screen.getByLabelText('共享申请流程')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '共享到推荐库' })).toBeInTheDocument()
+    expect(screen.getByText(/个人备注、个人标签、书签路径和打开频率不会公开/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '提交共享申请' })).toBeInTheDocument()
   })
 })

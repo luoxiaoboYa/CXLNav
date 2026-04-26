@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/vue'
+import { fireEvent, render, screen } from '@testing-library/vue'
 
 import App from '../../App.vue'
 import router from '../../router'
@@ -28,5 +28,23 @@ describe('discover page', () => {
     expect(screen.queryByRole('heading', { name: '系统推荐' })).not.toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: '用户分享' })).not.toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: '热门内容' })).not.toBeInTheDocument()
+  })
+
+  test('opens the collect confirmation panel from a recommendation card', async () => {
+    await router.push('/discover')
+    await router.isReady()
+
+    render(App, {
+      global: {
+        plugins: [router]
+      }
+    })
+
+    await fireEvent.click(screen.getAllByRole('button', { name: '收藏到我的站点' })[0])
+
+    expect(screen.getByLabelText('推荐收藏确认')).toBeInTheDocument()
+    expect(screen.getByText('平台标签建议')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '确认收藏' })).toBeInTheDocument()
+    expect(screen.getAllByText(/平台标签只作为建议/).length).toBeGreaterThan(0)
   })
 })

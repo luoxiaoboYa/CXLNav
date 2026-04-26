@@ -2,8 +2,20 @@
   <section class="management-panel">
     <SectionHeader title="分享 / 推荐管理" description="集中处理系统推荐和用户分享的流转状态。" />
 
+    <div class="status-tabs" aria-label="分享推荐状态筛选">
+      <button
+        v-for="status in statusTabs"
+        :key="status"
+        :class="['tab-button', { active: activeStatus === status }]"
+        type="button"
+        @click="activeStatus = status"
+      >
+        {{ status }} {{ getStatusCount(status) }}
+      </button>
+    </div>
+
     <div class="table-list">
-      <article v-for="item in shareRecords" :key="item.title" class="row-card">
+      <article v-for="item in visibleRecords" :key="item.title" class="row-card">
         <div>
           <h3>{{ item.title }}</h3>
           <p>{{ item.source }} · {{ item.type }}</p>
@@ -17,6 +29,8 @@
       </article>
     </div>
 
+    <p v-if="visibleRecords.length === 0" class="empty-state">当前状态下暂无分享或推荐内容。</p>
+
     <section class="governance-panel">
       <h3>后台治理能力</h3>
       <ul>
@@ -29,8 +43,27 @@
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from 'vue'
+
 import SectionHeader from '../SectionHeader.vue'
 import { shareRecords } from '../../data/settings'
+
+const statusTabs = ['全部状态', '已上架', '待审核', '推荐中'] as const
+const activeStatus = ref<(typeof statusTabs)[number]>('全部状态')
+
+const visibleRecords = computed(() =>
+  activeStatus.value === '全部状态'
+    ? shareRecords
+    : shareRecords.filter((item) => item.status === activeStatus.value)
+)
+
+const getStatusCount = (status: (typeof statusTabs)[number]) => {
+  if (status === '全部状态') {
+    return shareRecords.length
+  }
+
+  return shareRecords.filter((item) => item.status === status).length
+}
 </script>
 
 <style scoped>
@@ -38,6 +71,12 @@ import { shareRecords } from '../../data/settings'
 .table-list {
   display: grid;
   gap: 16px;
+}
+
+.status-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .row-card {
@@ -58,6 +97,12 @@ p {
 
 p {
   color: #61685f;
+}
+
+.empty-state {
+  margin: 0;
+  color: #1b6a52;
+  font-weight: 700;
 }
 
 .review-hint {
@@ -93,6 +138,17 @@ button {
   background: #fbf8f2;
   padding: 10px 12px;
   font: inherit;
+}
+
+.tab-button {
+  color: #61685f;
+}
+
+.tab-button.active {
+  border-color: #1b6a52;
+  background: #deeee7;
+  color: #1b6a52;
+  font-weight: 700;
 }
 
 @media (max-width: 960px) {
