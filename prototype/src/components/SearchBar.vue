@@ -20,11 +20,26 @@ input {
   width: 100%;
   min-height: 48px;
   padding: 0 16px;
-  border: 1px solid #d7d2c6;
-  border-radius: 14px;
-  background: #ffffff;
-  color: #1f251f;
+  border: 1px solid rgba(139, 233, 253, 0.34);
+  border-radius: 16px;
+  background: var(--control-background);
+  color: var(--color-text);
   font: inherit;
+  outline: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.03),
+    0 18px 42px rgba(8, 11, 31, 0.28);
+}
+
+input::placeholder {
+  color: var(--color-text-muted);
+}
+
+input:focus {
+  border-color: var(--color-accent);
+  box-shadow:
+    0 0 0 3px rgba(139, 233, 253, 0.14),
+    0 18px 42px rgba(61, 90, 254, 0.24);
 }
 
 .sr-only {

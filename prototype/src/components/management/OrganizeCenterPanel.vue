@@ -142,9 +142,10 @@ const completeOrganizing = (item: OrganizeRecord) => {
 
 .rule-strip span {
   padding: 8px 10px;
+  border: 1px solid rgba(139, 233, 253, 0.26);
   border-radius: 999px;
-  background: #deeee7;
-  color: #1b6a52;
+  background: rgba(139, 233, 253, 0.12);
+  color: var(--color-accent, #8be9fd);
   font-weight: 700;
 }
 
@@ -152,9 +153,12 @@ const completeOrganizing = (item: OrganizeRecord) => {
   grid-template-columns: minmax(0, 1.1fr) minmax(220px, 0.9fr) auto;
   align-items: center;
   padding: 16px;
-  border: 1px solid #d7d2c6;
+  border: 1px solid var(--color-border, rgba(139, 233, 253, 0.22));
   border-radius: 18px;
-  background: #ffffff;
+  background:
+    radial-gradient(circle at 10% 0%, rgba(139, 233, 253, 0.12), transparent 26%),
+    var(--control-background, rgba(24, 35, 90, 0.76));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 h3,
@@ -166,12 +170,12 @@ dd {
 }
 
 .task-card strong {
-  color: #b36b22;
+  color: var(--color-accent, #8be9fd);
 }
 
 p,
 dd {
-  color: #61685f;
+  color: var(--color-text-muted, #9aa8d4);
 }
 
 dl,
@@ -185,51 +189,53 @@ dt {
 }
 
 button {
-  border: 1px solid #1b6a52;
+  border: 1px solid var(--color-primary, #6d5dfc);
   border-radius: 12px;
-  background: #1b6a52;
-  color: #ffffff;
+  background: var(--primary-action-background, #6d5dfc);
+  color: var(--primary-action-text, #ffffff);
   padding: 10px 12px;
   font: inherit;
 }
 
 button.secondary {
-  border-color: #d7d2c6;
-  background: #fbf8f2;
-  color: #1f251f;
+  border-color: var(--color-border, rgba(139, 233, 253, 0.22));
+  background: var(--control-background, rgba(24, 35, 90, 0.76));
+  color: var(--color-text, #edf3ff);
 }
 
 button.complete {
-  border-color: #b36b22;
-  background: #fff2dc;
-  color: #7b4a17;
+  border-color: rgba(139, 233, 253, 0.5);
+  background: rgba(139, 233, 253, 0.14);
+  color: var(--color-accent, #8be9fd);
 }
 
 .tab-button {
-  border-color: #d7d2c6;
-  background: #fbf8f2;
-  color: #61685f;
+  border-color: var(--color-border, rgba(139, 233, 253, 0.22));
+  background: var(--control-background, rgba(24, 35, 90, 0.76));
+  color: var(--color-text-muted, #9aa8d4);
 }
 
 .tab-button.active {
-  border-color: #1b6a52;
-  background: #deeee7;
-  color: #1b6a52;
+  border-color: rgba(139, 233, 253, 0.62);
+  background: rgba(61, 90, 254, 0.34);
+  color: var(--color-text, #edf3ff);
   font-weight: 700;
 }
 
 .action-result,
 .empty-state {
   margin-top: 8px;
-  color: #1b6a52;
+  color: var(--color-accent, #8be9fd);
   font-weight: 700;
 }
 
 .merge-note {
   padding: 14px;
-  border: 1px dashed #b8c9be;
+  border: 1px dashed rgba(139, 233, 253, 0.34);
   border-radius: 18px;
-  background: #f5fbf8;
+  background:
+    radial-gradient(circle at 12% 12%, rgba(139, 233, 253, 0.1), transparent 32%),
+    var(--muted-panel-background, rgba(8, 11, 31, 0.28));
 }
 
 @media (max-width: 960px) {

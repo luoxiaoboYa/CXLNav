@@ -13,5 +13,7 @@ describe('management page route', () => {
     render(ManagementPage)
 
     expect(await screen.findByRole('heading', { name: '管理中心' })).toBeInTheDocument()
+    expect(screen.getByText('轨道控制台')).toBeInTheDocument()
+    expect(screen.getByText('维护星图')).toBeInTheDocument()
   })
 })

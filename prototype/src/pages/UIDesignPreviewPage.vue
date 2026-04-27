@@ -3,13 +3,13 @@
     <header class="hero">
       <div>
         <p class="eyebrow">CXSearch UI Direction Compare</p>
-        <h1>四套 UI 视觉方案对比</h1>
+        <h1>多套 UI 视觉方案对比</h1>
         <p>先看方向，不接业务逻辑。你可以按整体气质选一版，再进入 UI 静态页面开发。</p>
       </div>
       <aside class="hero-note">
-        <span>当前推荐</span>
-        <strong>A 暖白墨绿</strong>
-        <p>最适合长期个人整理；如果想更像公开产品，可选 B。</p>
+        <span>已确认方案</span>
+        <strong>K6 太空探索 / 网址星图</strong>
+        <p>最终使用星空、轨道和星标的视觉隐喻；后续静态页面按这套风格和配色展开。</p>
       </aside>
     </header>
     <section class="panel playful-panel">
@@ -99,6 +99,98 @@
       </div>
     </section>
 
+    <section class="panel playful-home-panel" aria-label="趣味风格首页方案">
+      <SectionHeader title="趣味风格首页方案" description="下面把趣味风格板里的 6 个方向展开成首页草案，不改全站顶部导航，只看首页主体气质。" />
+      <div class="playful-home-stack">
+        <article
+          v-for="style in playfulStyles"
+          :key="`${style.key}-homepage`"
+          :aria-label="`${style.name} 首页方案`"
+          :class="['playful-home', `${style.className}-home`]"
+        >
+          <header class="playful-home-intro">
+            <span>{{ style.key }}</span>
+            <div>
+              <strong>{{ style.key }} {{ style.name }}</strong>
+              <p>{{ style.description }}</p>
+            </div>
+          </header>
+
+          <div v-if="style.key === 'K1'" class="playful-home-screen garden-home">
+            <div class="garden-hero">
+              <span>今日小花园</span>
+              <strong>常用站点正在开花</strong>
+              <p>用花圃分区承接常访问、待整理和最近收藏。</p>
+            </div>
+            <div class="garden-bed">
+              <article><span>🌼</span><strong>GitHub</strong><small>开发花圃</small></article>
+              <article><span>🌷</span><strong>Figma</strong><small>灵感花圃</small></article>
+              <article><span>🌱</span><strong>Notion</strong><small>新芽待整理</small></article>
+            </div>
+          </div>
+
+          <div v-else-if="style.key === 'K2'" class="playful-home-screen doodle-home">
+            <div class="doodle-note main">
+              <strong>灵感便签夹</strong>
+              <p>把今天要看的站点贴在首页。</p>
+            </div>
+            <div class="doodle-pin one">GitHub<br /><span>开发</span></div>
+            <div class="doodle-pin two">Figma<br /><span>设计</span></div>
+            <div class="doodle-pin three">AI Tools<br /><span>推荐</span></div>
+            <div class="doodle-search">搜索便签、标签、灵感来源</div>
+          </div>
+
+          <div v-else-if="style.key === 'K3'" class="playful-home-screen pixel-home">
+            <div class="pixel-status">BOOKMARK QUEST · LV.24</div>
+            <div class="pixel-grid">
+              <article>GITHUB<span>OPEN</span></article>
+              <article>FIGMA<span>DESIGN</span></article>
+              <article>NOTION<span>DOCS</span></article>
+              <article>LINEAR<span>TASK</span></article>
+            </div>
+            <div class="pixel-command">A 打开 · B 编辑 · START 整理</div>
+          </div>
+
+          <div v-else-if="style.key === 'K4'" class="playful-home-screen magazine-home">
+            <div class="magazine-masthead">WEB PICKS MONTHLY</div>
+            <article class="magazine-cover">
+              <span>Vol.04</span>
+              <strong>本月值得收藏的网站</strong>
+              <p>设计系统、AI 工具、开发文档与效率工作流。</p>
+            </article>
+            <div class="magazine-columns">
+              <span>Design Systems</span>
+              <span>AI Tools</span>
+              <span>Dev Docs</span>
+            </div>
+          </div>
+
+          <div v-else-if="style.key === 'K5'" class="playful-home-screen forest-home">
+            <div class="forest-canopy">
+              <strong>我的资源森林</strong>
+              <span>新芽 5 · 成熟分类 8 · 待修枝 2</span>
+            </div>
+            <div class="forest-path">
+              <article><strong>开发文档</strong><span>主干路径</span></article>
+              <article><strong>设计资源</strong><span>灵感树冠</span></article>
+              <article><strong>待整理</strong><span>新芽篮</span></article>
+            </div>
+          </div>
+
+          <div v-else class="playful-home-screen galaxy-home">
+            <div class="galaxy-core">
+              <strong>URL Galaxy</strong>
+              <span>36 stars mapped</span>
+            </div>
+            <div class="orbit orbit-one"><span>GitHub</span></div>
+            <div class="orbit orbit-two"><span>Figma</span></div>
+            <div class="orbit orbit-three"><span>AI Tools</span></div>
+            <div class="galaxy-dock">探索 · 收藏 · 整理轨道</div>
+          </div>
+        </article>
+      </div>
+    </section>
+
     <section class="panel">
       <SectionHeader title="方案判断" description="我先给出取舍，方便你快速判断。" />
       <div class="judge-grid">
@@ -123,7 +215,7 @@
     </section>
 
     <section class="panel selected-panel">
-      <SectionHeader title="当前详细方案：A 暖白墨绿" description="如果最终选 A，下面这些组件会作为静态页面开发基础。" />
+      <SectionHeader title="当前详细方案：K6 太空探索 / 网址星图" description="已确认使用 K6 的星空底色、霓虹蓝紫和轨道卡片作为静态页面开发基础。" />
       <div class="palette">
         <article v-for="item in palette" :key="item.name" class="color-card">
           <span class="swatch" :style="{ background: item.value }"></span>
@@ -170,8 +262,8 @@
 
     <section class="decision">
       <div>
-        <h2>我的建议</h2>
-        <p>如果你想先做个人可长期使用的产品，选 A；如果你更想做公开推荐平台，选 B。C 和 D 更偏个性化，不建议作为默认第一版。</p>
+        <h2>最终决定</h2>
+        <p>已确认使用 K6「太空探索 / 网址星图」。顶部导航结构保持现状，首页主体和后续页面视觉按星图风格推进。</p>
       </div>
       <RouterLink class="btn primary" to="/settings">回到管理中心</RouterLink>
     </section>
@@ -420,14 +512,14 @@ const directions: Direction[] = [
 ]
 
 const palette = [
-  { name: '页面暖白', value: '#f4f0e8', usage: '全局背景' },
-  { name: '面板白', value: '#fffdf8', usage: '页面主面板' },
-  { name: '墨绿色', value: '#1b6a52', usage: '主按钮 / 激活态' },
-  { name: '浅绿色', value: '#deeee7', usage: '选中状态 / 标签' },
-  { name: '暖橙', value: '#b36b22', usage: '待整理 / 警示' },
-  { name: '蓝灰', value: '#4c709a', usage: '推荐 / 平台标签' },
-  { name: '主文本', value: '#1f251f', usage: '标题正文' },
-  { name: '边框', value: '#d7d2c6', usage: '卡片描边' }
+  { name: '星空底色', value: '#080b1f', usage: '首页主体背景' },
+  { name: '深空面板', value: '#11183b', usage: '主内容区和轨道背景' },
+  { name: '轨道卡片', value: '#18235a', usage: '站点卡片 / 悬浮信息' },
+  { name: '星云紫', value: '#6d5dfc', usage: '主按钮 / 核心星球' },
+  { name: '轨道蓝', value: '#3d5afe', usage: '描边 / 轨道线' },
+  { name: '星光青', value: '#8be9fd', usage: '标签 / 高亮信息' },
+  { name: '星光文本', value: '#edf3ff', usage: '主文本' },
+  { name: '弱星尘', value: '#9aa8d4', usage: '次级文本' }
 ]
 
 const directionStyle = (direction: Direction) => direction.vars
@@ -436,12 +528,13 @@ const directionStyle = (direction: Direction) => direction.vars
 <style scoped>
 .design-page { display: grid; gap: 24px; color: #1f251f; }
 .hero, .panel, .decision { border: 1px solid #d7d2c6; border-radius: 28px; background: rgba(255,253,248,.96); }
-.hero { display: grid; grid-template-columns: 1fr 320px; gap: 24px; padding: 32px; background: radial-gradient(circle at 12% 12%, rgba(27,106,82,.16), transparent 32%), linear-gradient(135deg, #fffdf8, #f5fbf8); }
-.eyebrow { margin: 0 0 10px; color: #1b6a52; font-size: .82rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.hero { display: grid; grid-template-columns: 1fr 320px; gap: 24px; padding: 32px; background: radial-gradient(circle at 16% 22%, rgba(139,233,253,.26), transparent 28%), radial-gradient(circle at 82% 18%, rgba(109,93,252,.34), transparent 30%), #080b1f; color: #edf3ff; }
+.eyebrow { margin: 0 0 10px; color: #8be9fd; font-size: .82rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .hero h1 { margin: 0; font-size: clamp(2rem, 5vw, 4rem); line-height: 1.05; }
-.hero p, .hero-note p, .decision p { color: #61685f; }
-.hero-note { display: grid; gap: 10px; padding: 20px; border: 1px solid #b8c9be; border-radius: 24px; background: rgba(255,255,255,.74); }
-.hero-note strong { color: #1b6a52; font-size: 1.35rem; }
+.hero p, .hero-note p { color: #b8c4f2; }
+.decision p { color: #61685f; }
+.hero-note { display: grid; gap: 10px; padding: 20px; border: 1px solid #3d5afe; border-radius: 24px; background: rgba(24,35,90,.82); }
+.hero-note strong { color: #8be9fd; font-size: 1.35rem; }
 .panel, .decision { display: grid; gap: 18px; padding: 24px; }
 .direction-grid, .preview-grid, .judge-grid, .palette, .components { display: grid; gap: 16px; }
 .direction-grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
@@ -473,35 +566,102 @@ const directionStyle = (direction: Direction) => direction.vars
 .preview-icon.alt { background: var(--d-info); }
 .preview-tabs span { padding: 8px 10px; border: 1px solid var(--d-border); border-radius: 999px; background: var(--d-card); color: var(--d-muted); font-size: .9rem; }
 .preview-tabs .active { border-color: var(--d-primary); background: var(--d-primary-soft); color: var(--d-primary); font-weight: 800; }
+.playful-home-panel { overflow: hidden; }
+.playful-home-stack { display: grid; gap: 24px; }
+.playful-home { display: grid; gap: 16px; padding: 18px; border: 2px solid transparent; border-radius: 30px; overflow: hidden; }
+.playful-home-intro { display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; }
+.playful-home-intro > span { display: grid; width: 46px; height: 46px; place-items: center; border-radius: 16px; font-weight: 900; }
+.playful-home-intro strong { display: block; font-size: 1.08rem; }
+.playful-home-intro p { margin: 6px 0 0; line-height: 1.55; }
+.playful-home-screen { min-height: 360px; border-radius: 26px; overflow: hidden; position: relative; }
+.garden-home { display: grid; grid-template-columns: .9fr 1.1fr; gap: 16px; padding: 18px; background: radial-gradient(circle at 20% 24%, #fff6b8, transparent 26%), #fff0c9; }
+.garden-hero { display: grid; align-content: center; gap: 10px; padding: 20px; border-radius: 24px; background: #fff5f7; color: #50313d; }
+.garden-hero strong { font-size: 1.8rem; line-height: 1.15; }
+.garden-hero p { margin: 0; }
+.garden-bed { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; align-items: end; }
+.garden-bed article { display: grid; gap: 8px; justify-items: center; min-height: 210px; padding: 16px 10px; border-radius: 999px 999px 24px 24px; background: #dff7df; color: #3f7a4b; }
+.garden-bed article:nth-child(2) { min-height: 260px; background: #ffd6e2; color: #8a3756; }
+.garden-bed article:nth-child(3) { min-height: 170px; }
+.garden-bed span { font-size: 2rem; }
+.doodle-home { min-height: 380px; padding: 22px; background: repeating-linear-gradient(-8deg, #fffaf0, #fffaf0 14px, #f4ead8 15px); border: 2px solid #24211c; box-shadow: 7px 7px 0 #24211c; color: #2f2a22; }
+.doodle-note, .doodle-pin, .doodle-search { position: absolute; border: 2px solid #24211c; box-shadow: 4px 4px 0 #24211c; }
+.doodle-note.main { left: 26px; top: 26px; width: min(330px, 55%); padding: 18px; background: #ffe15d; transform: rotate(-2deg); }
+.doodle-note strong { font-size: 1.55rem; }
+.doodle-pin { display: grid; place-items: center; width: 140px; height: 110px; padding: 14px; font-weight: 900; text-align: center; }
+.doodle-pin span { font-size: .82rem; font-weight: 700; }
+.doodle-pin.one { right: 130px; top: 38px; background: #b8e6ff; transform: rotate(4deg); }
+.doodle-pin.two { right: 42px; top: 152px; background: #ffd6e2; transform: rotate(-5deg); }
+.doodle-pin.three { left: 42%; bottom: 34px; background: #dff7df; transform: rotate(2deg); }
+.doodle-search { left: 26px; right: 26px; bottom: 26px; padding: 14px 16px; background: #fff; border-radius: 999px; }
+.pixel-home { display: grid; gap: 14px; align-content: start; padding: 18px; border: 4px solid #1f1f1f; border-radius: 4px; background: #2b2550; color: #7cff6b; image-rendering: pixelated; }
+.pixel-status, .pixel-command { padding: 12px; border: 4px solid #1f1f1f; background: #111; font-weight: 900; }
+.pixel-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.pixel-grid article { display: grid; gap: 16px; min-height: 96px; padding: 14px; border: 4px solid #1f1f1f; background: #f8f2d8; color: #171717; font-weight: 900; }
+.pixel-grid span { width: fit-content; padding: 5px 7px; background: #7cff6b; color: #171717; }
+.magazine-home { display: grid; grid-template-columns: 1fr 1.2fr; gap: 18px; padding: 18px; background: #fbfaf6; color: #211f1b; }
+.magazine-masthead { grid-column: 1 / -1; padding-bottom: 12px; border-bottom: 4px solid #211f1b; font-size: 1.7rem; font-weight: 900; }
+.magazine-cover { display: grid; align-content: end; gap: 10px; min-height: 250px; padding: 18px; background: #ede7db; border-left: 8px solid #b63f2f; }
+.magazine-cover strong { font-size: 2rem; line-height: 1.08; }
+.magazine-cover p { margin: 0; }
+.magazine-columns { display: grid; gap: 12px; }
+.magazine-columns span { padding: 18px; background: #211f1b; color: #fbfaf6; font-weight: 900; }
+.forest-home { display: grid; gap: 18px; padding: 20px; background: radial-gradient(circle at 16% 80%, #d5e8c8, transparent 34%), #f8fff4; color: #253b28; }
+.forest-canopy { display: grid; gap: 8px; padding: 20px; border-radius: 30px; background: #4f7f52; color: #fff; }
+.forest-canopy strong { font-size: 1.8rem; }
+.forest-path { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: end; }
+.forest-path article { display: grid; gap: 8px; min-height: 160px; padding: 16px; border-radius: 26px 26px 14px 14px; background: #edf6e8; border: 1px solid #b8d8aa; }
+.forest-path article:nth-child(2) { min-height: 220px; }
+.forest-path article:nth-child(3) { min-height: 120px; background: #fff7cf; }
+.galaxy-home { min-height: 390px; background: radial-gradient(circle at 28% 38%, #fff 0 2px, transparent 3px), radial-gradient(circle at 80% 28%, #8be9fd 0 3px, transparent 4px), #11183b; color: #edf3ff; }
+.galaxy-core { position: absolute; left: 50%; top: 50%; display: grid; gap: 8px; width: 180px; height: 180px; place-content: center; border-radius: 999px; background: #6d5dfc; text-align: center; transform: translate(-50%, -50%); box-shadow: 0 0 36px rgba(109, 93, 252, .58); }
+.galaxy-core strong { font-size: 1.45rem; }
+.orbit { position: absolute; display: grid; place-items: center; border: 1px solid rgba(139, 233, 253, .55); border-radius: 999px; }
+.orbit span { padding: 9px 12px; border-radius: 999px; background: #18235a; color: #8be9fd; font-weight: 900; }
+.orbit-one { left: 8%; top: 18%; width: 180px; height: 90px; }
+.orbit-two { right: 8%; top: 22%; width: 150px; height: 150px; }
+.orbit-three { left: 18%; bottom: 12%; width: 220px; height: 120px; }
+.galaxy-dock { position: absolute; right: 22px; bottom: 22px; padding: 12px 14px; border-radius: 999px; background: #18235a; color: #8be9fd; }
+.cute-style-home { background: #fff5f7; border-color: #ffd6e2; color: #50313d; }
+.cute-style-home .playful-home-intro > span { background: #ff8fb3; color: #fff; }
+.doodle-style-home { background: #fffaf0; border-color: #24211c; color: #2f2a22; }
+.doodle-style-home .playful-home-intro > span { background: #ffe15d; color: #2f2a22; border: 2px solid #24211c; }
+.pixel-style-home { background: #f8f2d8; border-color: #1f1f1f; border-radius: 6px; color: #171717; }
+.pixel-style-home .playful-home-intro > span { background: #1f1f1f; color: #7cff6b; border-radius: 4px; }
+.magazine-style-home { background: #fbfaf6; border-color: #d8d1c4; color: #211f1b; border-radius: 0; }
+.magazine-style-home .playful-home-intro > span { background: #211f1b; color: #fbfaf6; border-radius: 999px; }
+.nature-style-home { background: #edf6e8; border-color: #b8d8aa; color: #253b28; }
+.nature-style-home .playful-home-intro > span { background: #4f7f52; color: #fff; }
+.space-style-home { background: #080b1f; border-color: #3d5afe; color: #edf3ff; }
+.space-style-home .playful-home-intro > span { background: #6d5dfc; color: #fff; box-shadow: 0 0 24px rgba(109, 93, 252, .55); }
 .judge-grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
 .judge-card { display: grid; gap: 12px; padding: 16px; border: 1px solid #d7d2c6; border-radius: 20px; background: #fff; }
 .judge-card dl { display: grid; gap: 10px; }
 .judge-card dt { margin-bottom: 4px; color: #1b6a52; font-weight: 800; }
 .judge-card dd { margin: 0; line-height: 1.55; }
-.selected-panel { background: linear-gradient(135deg, #fffdf8, #f5fbf8); }
+.selected-panel { background: radial-gradient(circle at 12% 16%, rgba(139,233,253,.16), transparent 26%), #11183b; color: #edf3ff; }
 .palette { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.color-card, .component-card { border: 1px solid #d7d2c6; border-radius: 20px; background: #fff; }
+.color-card, .component-card { border: 1px solid #3d5afe; border-radius: 20px; background: #18235a; color: #edf3ff; }
 .color-card { display: grid; gap: 6px; padding: 14px; }
-.swatch { width: 54px; height: 54px; border: 1px solid #d7d2c6; border-radius: 16px; }
+.swatch { width: 54px; height: 54px; border: 1px solid #3d5afe; border-radius: 16px; }
 .color-card p, .color-card code, .component-card h3, .decision h2, .decision p { margin: 0; }
-.color-card p { color: #61685f; font-size: .9rem; }
-.color-card code { color: #8a907f; font-size: .82rem; }
+.color-card p { color: #b8c4f2; font-size: .9rem; }
+.color-card code { color: #8be9fd; font-size: .82rem; }
 .components { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .component-card { display: grid; gap: 14px; align-content: start; padding: 16px; }
 .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .btn, .tab { border: 1px solid #d7d2c6; border-radius: 12px; padding: 10px 12px; font: inherit; text-decoration: none; }
-.btn.primary { border-color: #1b6a52; background: #1b6a52; color: #fff; }
-.btn.secondary { background: #fbf8f2; color: #1f251f; }
-.btn.danger { border-color: #e3c28f; background: #fff2dc; color: #7b4a17; }
-.tab { border-radius: 999px; background: #fbf8f2; color: #61685f; }
-.tab.active { border-color: #1b6a52; background: #deeee7; color: #1b6a52; font-weight: 800; }
+.btn.primary { border-color: #6d5dfc; background: #6d5dfc; color: #fff; }
+.btn.secondary { background: #11183b; color: #edf3ff; }
+.btn.danger { border-color: #8be9fd; background: #18235a; color: #8be9fd; }
+.tab { border-radius: 999px; background: #11183b; color: #b8c4f2; }
+.tab.active { border-color: #8be9fd; background: #18235a; color: #8be9fd; font-weight: 800; }
 .chip { padding: 6px 10px; border-radius: 999px; font-size: .84rem; font-weight: 700; }
-.chip.personal { background: #deeee7; color: #1b6a52; }
-.chip.platform { background: #edf3f8; color: #4c709a; }
-.chip.warning { background: #fff2dc; color: #7b4a17; }
+.chip.personal { background: #18235a; color: #8be9fd; }
+.chip.platform { background: #312e81; color: #edf3ff; }
+.chip.warning { background: #2b2550; color: #d8c9ff; }
 label { display: grid; gap: 8px; color: #61685f; }
 input { border: 1px solid #d7d2c6; border-radius: 12px; padding: 10px 12px; color: #1f251f; font: inherit; }
-.decision { grid-template-columns: 1fr auto; align-items: center; background: linear-gradient(135deg, #f5fbf8, #fffdf8); }
+.decision { grid-template-columns: 1fr auto; align-items: center; background: linear-gradient(135deg, #edf3ff, #fffdf8); }
 .playful-panel { background: linear-gradient(135deg, #fffdf8, #f7f0ff); }
 .playful-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
 .playful-card { position: relative; display: grid; gap: 14px; min-height: 390px; padding: 18px; border: 2px solid transparent; border-radius: 30px; overflow: hidden; }
@@ -695,6 +855,6 @@ input { border: 1px solid #d7d2c6; border-radius: 12px; padding: 10px 12px; colo
 @media (max-width: 640px) { .playful-grid { grid-template-columns: 1fr; } }
 .style-board-grid { grid-template-columns: 1fr; } }
 @media (max-width: 1180px) { .palette, .components { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 920px) { .hero, .preview-grid, .decision { grid-template-columns: 1fr; } .preview-sites { grid-template-columns: 1fr; } }
-@media (max-width: 640px) { .direction-grid, .judge-grid, .palette, .components { grid-template-columns: 1fr; } .hero, .panel, .decision { padding: 18px; } }
+@media (max-width: 920px) { .hero, .preview-grid, .decision, .garden-home, .magazine-home, .forest-path { grid-template-columns: 1fr; } .preview-sites { grid-template-columns: 1fr; } .doodle-pin.one, .doodle-pin.two, .doodle-pin.three { position: static; transform: none; } .doodle-home { display: grid; gap: 12px; } .doodle-note.main, .doodle-search { position: static; width: auto; } }
+@media (max-width: 640px) { .direction-grid, .judge-grid, .palette, .components, .garden-bed, .pixel-grid { grid-template-columns: 1fr; } .hero, .panel, .decision { padding: 18px; } .playful-home { padding: 14px; border-radius: 22px; } .garden-hero strong, .magazine-cover strong { font-size: 1.45rem; } .orbit-one, .orbit-two, .orbit-three { position: static; width: auto; height: auto; margin: 12px; } .galaxy-home { display: grid; gap: 10px; padding-top: 180px; } }
 </style>

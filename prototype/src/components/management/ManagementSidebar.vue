@@ -45,22 +45,40 @@ withDefaults(
 <style scoped>
 .management-sidebar {
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
 .sidebar-item {
-  padding: 12px 14px;
-  border: 1px solid #d7d2c6;
-  border-radius: 14px;
-  background: #fbf8f2;
-  color: #61685f;
+  position: relative;
+  padding: 12px 14px 12px 34px;
+  border: 1px solid var(--color-border, rgba(139, 233, 253, 0.22));
+  border-radius: 16px;
+  background: var(--control-background, rgba(24, 35, 90, 0.76));
+  color: var(--color-text-muted, #9aa8d4);
   text-align: left;
   font: inherit;
+  overflow: hidden;
+}
+
+.sidebar-item::before {
+  content: "";
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: currentColor;
+  transform: translateY(-50%);
+  box-shadow: 0 0 16px currentColor;
 }
 
 .sidebar-item.active {
-  background: #deeee7;
-  color: #1b6a52;
+  border-color: rgba(139, 233, 253, 0.62);
+  background:
+    radial-gradient(circle at 18% 20%, rgba(139, 233, 253, 0.22), transparent 38%),
+    rgba(61, 90, 254, 0.34);
+  color: var(--color-text, #edf3ff);
   font-weight: 700;
 }
 </style>

@@ -12,6 +12,9 @@ describe('homepage structure', () => {
     const userShares = screen.getByRole('heading', { name: '用户分享' })
     const continueDiscovery = screen.getByRole('heading', { name: '继续发现' })
 
+    expect(screen.getByRole('heading', { name: 'URL Galaxy' })).toBeInTheDocument()
+    expect(screen.getByText('星图导航')).toBeInTheDocument()
+    expect(screen.getByText('轨道推荐')).toBeInTheDocument()
     expect(frequentVisits).toBeInTheDocument()
     expect(personalCategories).toBeInTheDocument()
     expect(systemRecommendations).toBeInTheDocument()

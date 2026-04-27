@@ -31,7 +31,7 @@ h2 {
 
 p {
   margin: 6px 0 0;
-  color: #61685f;
+  color: var(--color-text-muted);
   line-height: 1.5;
 }
 </style>

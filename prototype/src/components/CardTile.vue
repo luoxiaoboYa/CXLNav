@@ -28,32 +28,43 @@ withDefaults(
 <style scoped>
 .card-tile {
   padding: 16px;
-  border: 1px solid #d7d2c6;
+  border: 1px solid var(--color-border);
   border-radius: 18px;
-  background: #ffffff;
+  background:
+    radial-gradient(circle at 18% 0%, rgba(139, 233, 253, 0.1), transparent 28%),
+    var(--control-background);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .card-tile.featured {
   min-height: 156px;
-  background: linear-gradient(135deg, rgba(27, 106, 82, 0.12), #ffffff 70%);
+  background:
+    radial-gradient(circle at 16% 10%, rgba(139, 233, 253, 0.22), transparent 28%),
+    var(--panel-strong-background);
+  box-shadow: var(--shadow-glow);
 }
 
 .card-tile.warm {
-  background: linear-gradient(135deg, rgba(201, 106, 58, 0.12), #ffffff 70%);
+  background:
+    radial-gradient(circle at 12% 12%, rgba(109, 93, 252, 0.24), transparent 30%),
+    var(--control-background);
 }
 
 .card-tile.cool {
-  background: linear-gradient(135deg, rgba(76, 112, 154, 0.12), #ffffff 70%);
+  background:
+    radial-gradient(circle at 12% 12%, rgba(139, 233, 253, 0.2), transparent 30%),
+    var(--control-background);
 }
 
 h3 {
   margin: 0 0 8px;
   font-size: 1rem;
+  color: var(--color-text);
 }
 
 p {
   margin: 0;
-  color: #61685f;
+  color: var(--color-text-muted);
   line-height: 1.6;
 }
 
@@ -69,8 +80,8 @@ p {
 .tags li {
   padding: 4px 8px;
   border-radius: 999px;
-  background: #edf3ef;
-  color: #1b6a52;
+  background: rgba(139, 233, 253, 0.12);
+  color: var(--color-accent);
   font-size: 0.75rem;
 }
 </style>

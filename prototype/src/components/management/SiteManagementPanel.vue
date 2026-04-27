@@ -243,23 +243,23 @@ onMounted(() => {
 }
 
 button {
-  border: 1px solid #d7d2c6;
-  border-radius: 12px;
-  background: #ffffff;
-  color: #1f251f;
+  border: 1px solid var(--color-border, rgba(139, 233, 253, 0.22));
+  border-radius: 999px;
+  background: var(--control-background, rgba(24, 35, 90, 0.76));
+  color: var(--color-text, #edf3ff);
   padding: 10px 12px;
   font: inherit;
 }
 
 .tab-button {
-  background: #fbf8f2;
-  color: #61685f;
+  background: rgba(24, 35, 90, 0.62);
+  color: var(--color-text-muted, #9aa8d4);
 }
 
 .tab-button.active {
-  border-color: #1b6a52;
-  background: #deeee7;
-  color: #1b6a52;
+  border-color: rgba(139, 233, 253, 0.62);
+  background: rgba(61, 90, 254, 0.34);
+  color: var(--color-text, #edf3ff);
   font-weight: 700;
 }
 
@@ -274,9 +274,11 @@ button {
   gap: 12px;
   align-items: center;
   padding: 16px;
-  border: 1px solid #d7d2c6;
+  border: 1px solid var(--color-border, rgba(139, 233, 253, 0.22));
   border-radius: 18px;
-  background: #ffffff;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(139, 233, 253, 0.1), transparent 22%),
+    var(--control-background, rgba(24, 35, 90, 0.76));
 }
 
 h3,
@@ -286,19 +288,19 @@ p {
 
 p,
 span {
-  color: #61685f;
+  color: var(--color-text-muted, #9aa8d4);
 }
 
 .status-message,
 .empty-state {
   margin: 0;
-  color: #1b6a52;
+  color: var(--color-accent, #8be9fd);
   font-weight: 700;
 }
 
 .error-message {
   margin: 0;
-  color: #7b4a17;
+  color: var(--danger-text, #ff9fba);
   font-weight: 700;
 }
 
