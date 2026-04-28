@@ -193,6 +193,14 @@ export const api = {
     })
   },
 
+  getPersonalSite(siteId: string) {
+    return request<{
+      site: PersonalSiteDto
+      recommendationInfo: unknown
+      validationLatest: unknown | null
+    }>(`/personal-sites/${siteId}`)
+  },
+
   updatePersonalSite(siteId: string, payload: SitePayload) {
     return request<{ site: PersonalSiteDto }>(`/personal-sites/${siteId}`, {
       method: 'PATCH',

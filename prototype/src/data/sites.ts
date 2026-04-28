@@ -1,4 +1,5 @@
 export type SiteRecord = {
+  id?: string
   title: string
   url: string
   description: string
@@ -116,4 +117,7 @@ export const mySiteEntries: SiteRecord[] = [
 
 export const findSiteByTitle = (title: string) => mySiteEntries.find((site) => site.title === title)
 
-export const getSiteDetailPath = (title: string) => `/my-sites/${encodeURIComponent(title)}`
+export const getSiteDetailPath = (site: SiteRecord | string) => {
+  const key = typeof site === 'string' ? site : site.id ?? site.title
+  return `/my-sites/${encodeURIComponent(key)}`
+}

@@ -66,7 +66,7 @@
             @click="activeCategory = '全部分类'"
           >
             <span>全部分类</span>
-            <strong aria-hidden="true">{{ mySiteEntries.length }}</strong>
+            <strong aria-hidden="true">{{ siteRecords.length }}</strong>
           </button>
           <button
             v-for="item in categoryItems"
@@ -88,7 +88,7 @@
             <span class="toolbar-label">标签筛选</span>
             <div class="tag-filter">
               <button
-                v-for="tag in siteTags"
+                v-for="tag in availableTags"
                 :key="tag"
                 :class="['tag-chip', { active: selectedTags.includes(tag) }]"
                 type="button"
@@ -126,11 +126,11 @@
           <div v-if="viewMode === 'simple'" class="card-grid">
             <article v-for="site in filteredSites" :key="site.title" class="site-card">
               <div class="card-top">
-                <RouterLink class="site-link" :to="getSiteDetailPath(site.title)">
+                <RouterLink class="site-link" :to="getSiteDetailPath(site)">
                   <h2>{{ site.title }}</h2>
                 </RouterLink>
                 <div class="card-actions">
-                  <RouterLink class="ghost-action" :to="getSiteDetailPath(site.title)">查看详情</RouterLink>
+                  <RouterLink class="ghost-action" :to="getSiteDetailPath(site)">查看详情</RouterLink>
                   <button class="ghost-action" type="button" @click="openEditModal(site)">编辑</button>
                 </div>
               </div>
@@ -156,14 +156,14 @@
             <article v-for="site in filteredSites" :key="site.title" class="detail-card">
               <div class="detail-top">
                 <div>
-                  <RouterLink class="site-link" :to="getSiteDetailPath(site.title)">
+                  <RouterLink class="site-link" :to="getSiteDetailPath(site)">
                     <h2>{{ site.title }}</h2>
                   </RouterLink>
                   <p>{{ site.description }}</p>
                 </div>
                 <div class="detail-actions">
                   <span class="updated-at">{{ site.updatedAt }}</span>
-                  <RouterLink class="ghost-action" :to="getSiteDetailPath(site.title)">查看详情</RouterLink>
+                  <RouterLink class="ghost-action" :to="getSiteDetailPath(site)">查看详情</RouterLink>
                   <button class="ghost-action" type="button" @click="openEditModal(site)">编辑</button>
                 </div>
               </div>
@@ -205,18 +205,26 @@
       </section>
     </div>
 
-    <SiteEditorModal :open="isEditorOpen" :site="editingSite" @close="closeModal" />
+    <SiteEditorModal
+      :categories="backendCategories"
+      :open="isEditorOpen"
+      :site="editingSite"
+      :tags="backendTags"
+      @close="closeModal"
+      @save="saveSite"
+    />
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 
 import SearchBar from '../components/SearchBar.vue'
 import SectionHeader from '../components/SectionHeader.vue'
 import SiteEditorModal from '../components/SiteEditorModal.vue'
-import { getSiteDetailPath, mySiteEntries, siteTags, type SiteRecord } from '../data/sites'
+import { getSiteDetailPath, mySiteEntries, siteTags as fallbackSiteTags, type SiteRecord } from '../data/sites'
+import { api, getStoredToken, type CategoryDto, type PersonalSiteDto, type SitePayload, type TagDto } from '../services/api'
 
 const viewMode = ref<'simple' | 'detail'>('simple')
 const activeCategory = ref('全部分类')
@@ -224,6 +232,11 @@ const selectedTags = ref<string[]>([])
 const activeStatus = ref<'all' | 'active' | 'todo' | 'archived' | 'link_problem' | 'risky'>('all')
 const isEditorOpen = ref(false)
 const editingSite = ref<SiteRecord | undefined>()
+const backendSites = ref<PersonalSiteDto[]>([])
+const backendCategories = ref<CategoryDto[]>([])
+const backendTags = ref<TagDto[]>([])
+const usingBackend = ref(false)
+const loadError = ref('')
 
 const statusFilters = [
   { label: '全部', value: 'all' },
@@ -237,7 +250,7 @@ const statusFilters = [
 const categoryItems = computed(() => {
   const counts = new Map<string, number>()
 
-  mySiteEntries.forEach((site) => {
+  siteRecords.value.forEach((site) => {
     counts.set(site.category, (counts.get(site.category) ?? 0) + 1)
   })
 
@@ -247,8 +260,20 @@ const categoryItems = computed(() => {
   }))
 })
 
+const siteRecords = computed<SiteRecord[]>(() => {
+  if (!usingBackend.value) {
+    return mySiteEntries
+  }
+
+  return backendSites.value.map(toSiteRecord)
+})
+
+const availableTags = computed(() =>
+  usingBackend.value ? backendTags.value.map((tag) => tag.name) : fallbackSiteTags
+)
+
 const filteredSites = computed(() =>
-  mySiteEntries.filter((site) => {
+  siteRecords.value.filter((site) => {
     const matchesCategory =
       activeCategory.value === '全部分类' || site.category === activeCategory.value
     const matchesTags =
@@ -267,10 +292,10 @@ const filteredSites = computed(() =>
 )
 
 const statusOverview = computed(() => [
-  { label: '全部站点', count: mySiteEntries.length },
-  { label: '待整理', count: mySiteEntries.filter((site) => site.organizeStatus !== 'complete').length },
-  { label: '已归档', count: mySiteEntries.filter((site) => site.archiveStatus === 'archived').length },
-  { label: '链接异常', count: mySiteEntries.filter((site) => site.securityStatus === 'unreachable').length }
+  { label: '全部站点', count: siteRecords.value.length },
+  { label: '待整理', count: siteRecords.value.filter((site) => site.organizeStatus !== 'complete').length },
+  { label: '已归档', count: siteRecords.value.filter((site) => site.archiveStatus === 'archived').length },
+  { label: '链接异常', count: siteRecords.value.filter((site) => site.securityStatus === 'unreachable').length }
 ])
 
 const statusLabels: Record<SiteRecord['organizeStatus'], string> = {
@@ -325,6 +350,108 @@ const closeModal = () => {
   editingSite.value = undefined
   isEditorOpen.value = false
 }
+
+const saveSite = async (payload: SitePayload) => {
+  if (!payload.url) {
+    return
+  }
+
+  if (!usingBackend.value) {
+    closeModal()
+    return
+  }
+
+  if (editingSite.value?.id) {
+    await api.updatePersonalSite(editingSite.value.id, payload)
+  } else {
+    await api.createPersonalSite(payload)
+  }
+
+  await loadRemoteData()
+  closeModal()
+}
+
+const loadRemoteData = async () => {
+  if (!getStoredToken()) {
+    usingBackend.value = false
+    return
+  }
+
+  try {
+    const [siteResponse, categoryResponse, tagResponse] = await Promise.all([
+      api.listPersonalSites(),
+      api.listCategories(),
+      api.listTags()
+    ])
+    backendSites.value = siteResponse.items
+    backendCategories.value = categoryResponse.items
+    backendTags.value = tagResponse.items
+    usingBackend.value = true
+    loadError.value = ''
+  } catch (error) {
+    usingBackend.value = false
+    loadError.value = error instanceof Error ? error.message : '站点接口暂不可用，已展示原型数据。'
+  }
+}
+
+const toSiteRecord = (site: PersonalSiteDto): SiteRecord => ({
+  id: site.id,
+  title: site.title || site.url,
+  url: site.url,
+  description: site.description || site.purpose || '暂未填写说明。',
+  category: site.category?.name ?? '未分类',
+  bookmarkPath: site.bookmarkPath?.fullPath ?? '未设置路径',
+  tags: site.tags.map((tag) => tag.name),
+  detail: site.personalNote || site.purpose || site.description || '暂未补充个人备注。',
+  updatedAt: formatTime(site.updatedAt),
+  lastOpenedAt: formatTime(site.lastOpenedAt),
+  organizeStatus: toOrganizeStatus(site.organizeStatus),
+  securityStatus: toSecurityStatus(site.securityStatus),
+  archiveStatus: site.archiveStatus === 'archived' ? 'archived' : 'active',
+  shareStatus: toShareStatus(site.shareStatus),
+  recommendationHint: site.sourceRecommendationId ? '来自推荐库收藏' : undefined
+})
+
+const toOrganizeStatus = (status: string): SiteRecord['organizeStatus'] => {
+  if (['complete', 'missing_description', 'missing_tags', 'duplicate_suspected', 'link_problem', 'path_pending', 'stale'].includes(status)) {
+    return status as SiteRecord['organizeStatus']
+  }
+
+  return 'complete'
+}
+
+const toSecurityStatus = (status: string): SiteRecord['securityStatus'] => {
+  if (['unchecked', 'checking', 'safe', 'unreachable', 'risky', 'blocked'].includes(status)) {
+    return status as SiteRecord['securityStatus']
+  }
+
+  return 'unchecked'
+}
+
+const toShareStatus = (status: string): SiteRecord['shareStatus'] => {
+  if (['none', 'pending', 'published', 'rejected'].includes(status)) {
+    return status as SiteRecord['shareStatus']
+  }
+
+  return 'none'
+}
+
+const formatTime = (value: string | null) => {
+  if (!value) {
+    return '未记录'
+  }
+
+  return new Intl.DateTimeFormat('zh-CN', {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(new Date(value))
+}
+
+onMounted(() => {
+  void loadRemoteData()
+})
 </script>
 
 <style scoped>

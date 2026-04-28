@@ -159,14 +159,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 
-import { findSiteByTitle } from '../data/sites'
+import { findSiteByTitle, type SiteRecord } from '../data/sites'
+import { api, getStoredToken, type PersonalSiteDto } from '../services/api'
 
 const route = useRoute()
-const siteTitle = computed(() => String(route.params.siteTitle ?? ''))
-const site = computed(() => findSiteByTitle(siteTitle.value))
+const siteKey = computed(() => String(route.params.siteTitle ?? ''))
+const remoteSite = ref<SiteRecord | undefined>()
+const site = computed(() => remoteSite.value ?? findSiteByTitle(siteKey.value))
 const canShare = computed(() => site.value?.securityStatus === 'safe' && site.value.archiveStatus === 'active')
 const shareFlowVisible = ref(false)
 
@@ -215,6 +217,84 @@ const publicFeatureSite = {
 const getOrganizeLabel = (status: keyof typeof organizeLabels) => organizeLabels[status]
 const getSecurityLabel = (status: keyof typeof securityLabels) => securityLabels[status]
 const getShareLabel = (status: keyof typeof shareLabels) => shareLabels[status]
+
+const loadRemoteSite = async () => {
+  remoteSite.value = undefined
+
+  if (!getStoredToken()) {
+    return
+  }
+
+  try {
+    const response = await api.getPersonalSite(siteKey.value)
+    remoteSite.value = toSiteRecord(response.site)
+  } catch {
+    remoteSite.value = undefined
+  }
+}
+
+const toSiteRecord = (site: PersonalSiteDto): SiteRecord => ({
+  id: site.id,
+  title: site.title || site.url,
+  url: site.url,
+  description: site.description || site.purpose || '暂未填写说明。',
+  category: site.category?.name ?? '未分类',
+  bookmarkPath: site.bookmarkPath?.fullPath ?? '未设置路径',
+  tags: site.tags.map((tag) => tag.name),
+  detail: site.personalNote || site.purpose || site.description || '暂未补充个人备注。',
+  updatedAt: formatTime(site.updatedAt),
+  lastOpenedAt: formatTime(site.lastOpenedAt),
+  organizeStatus: toOrganizeStatus(site.organizeStatus),
+  securityStatus: toSecurityStatus(site.securityStatus),
+  archiveStatus: site.archiveStatus === 'archived' ? 'archived' : 'active',
+  shareStatus: toShareStatus(site.shareStatus),
+  recommendationHint: site.sourceRecommendationId ? '来自推荐库收藏' : undefined
+})
+
+const toOrganizeStatus = (status: string): SiteRecord['organizeStatus'] => {
+  if (['complete', 'missing_description', 'missing_tags', 'duplicate_suspected', 'link_problem', 'path_pending', 'stale'].includes(status)) {
+    return status as SiteRecord['organizeStatus']
+  }
+
+  return 'complete'
+}
+
+const toSecurityStatus = (status: string): SiteRecord['securityStatus'] => {
+  if (['unchecked', 'checking', 'safe', 'unreachable', 'risky', 'blocked'].includes(status)) {
+    return status as SiteRecord['securityStatus']
+  }
+
+  return 'unchecked'
+}
+
+const toShareStatus = (status: string): SiteRecord['shareStatus'] => {
+  if (['none', 'pending', 'published', 'rejected'].includes(status)) {
+    return status as SiteRecord['shareStatus']
+  }
+
+  return 'none'
+}
+
+const formatTime = (value: string | null) => {
+  if (!value) {
+    return '未记录'
+  }
+
+  return new Intl.DateTimeFormat('zh-CN', {
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(new Date(value))
+}
+
+onMounted(() => {
+  void loadRemoteSite()
+})
+
+watch(siteKey, () => {
+  void loadRemoteSite()
+})
 </script>
 
 <style scoped>
