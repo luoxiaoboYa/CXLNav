@@ -52,9 +52,11 @@ import { bookmarkPathRecords } from '../../data/settings'
   display: grid;
   gap: 12px;
   padding: 16px;
-  border: 1px solid #d7d2c6;
+  border: 1px solid var(--color-border, rgba(139, 233, 253, 0.22));
   border-radius: 18px;
-  background: #ffffff;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(139, 233, 253, 0.08), transparent 24%),
+    var(--control-background, rgba(24, 35, 90, 0.76));
 }
 
 dl {
@@ -67,7 +69,7 @@ dl {
 dl div {
   padding: 10px;
   border-radius: 14px;
-  background: #fbf8f2;
+  background: var(--muted-panel-background, rgba(8, 11, 31, 0.28));
 }
 
 h3,
@@ -80,7 +82,7 @@ dd {
 p,
 dd,
 .hint {
-  color: #61685f;
+  color: var(--color-text-muted, #9aa8d4);
 }
 
 dt {
@@ -89,9 +91,10 @@ dt {
 }
 
 button {
-  border: 1px solid #d7d2c6;
+  border: 1px solid var(--color-border, rgba(139, 233, 253, 0.22));
   border-radius: 12px;
-  background: #fbf8f2;
+  background: var(--control-background, rgba(24, 35, 90, 0.76));
+  color: var(--color-text, #edf3ff);
   padding: 10px 12px;
   font: inherit;
 }

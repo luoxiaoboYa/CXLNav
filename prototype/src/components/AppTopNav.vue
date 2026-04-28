@@ -41,7 +41,7 @@ import ThemeToggle from './ThemeToggle.vue'
   border-bottom: 1px solid var(--color-border);
   background: var(--nav-background);
   backdrop-filter: blur(16px);
-  box-shadow: 0 14px 42px rgba(8, 11, 31, 0.32);
+  box-shadow: 0 8px 24px rgba(8, 11, 31, 0.18);
 }
 
 .brand {

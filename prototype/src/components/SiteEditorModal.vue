@@ -58,7 +58,8 @@ const draft = ref<SitePayload>({ url: '', source: 'manual' })
   display: grid;
   place-items: center;
   padding: 24px;
-  background: rgba(31, 37, 31, 0.42);
+  background: rgba(8, 11, 31, 0.72);
+  backdrop-filter: blur(12px);
 }
 
 .modal-card {
@@ -66,10 +67,12 @@ const draft = ref<SitePayload>({ url: '', source: 'manual' })
   max-height: calc(100vh - 48px);
   overflow: auto;
   padding: 24px;
-  border: 1px solid #d7d2c6;
+  border: 1px solid var(--color-border, rgba(139, 233, 253, 0.22));
   border-radius: 28px;
-  background: #fffdf8;
-  box-shadow: 0 24px 60px rgba(31, 37, 31, 0.18);
+  background:
+    radial-gradient(circle at 16% 0%, rgba(139, 233, 253, 0.12), transparent 26%),
+    var(--panel-strong-background, linear-gradient(135deg, rgba(24, 35, 90, 0.96), rgba(17, 24, 59, 0.88)));
+  box-shadow: var(--shadow-glow, 0 10px 28px rgba(61, 90, 254, 0.14));
 }
 
 .modal-top,
@@ -91,7 +94,7 @@ const draft = ref<SitePayload>({ url: '', source: 'manual' })
 
 .modal-top p {
   margin-top: 8px;
-  color: #61685f;
+  color: var(--color-text-muted, #9aa8d4);
 }
 
 .modal-actions {
@@ -101,18 +104,18 @@ const draft = ref<SitePayload>({ url: '', source: 'manual' })
 
 .ghost-button,
 .primary-button {
-  border: 1px solid #d7d2c6;
+  border: 1px solid var(--color-border, rgba(139, 233, 253, 0.22));
   border-radius: 12px;
   padding: 10px 14px;
-  background: #ffffff;
-  color: #1f251f;
+  background: var(--control-background, rgba(24, 35, 90, 0.76));
+  color: var(--color-text, #edf3ff);
   font: inherit;
 }
 
 .primary-button {
-  background: #1b6a52;
-  border-color: #1b6a52;
-  color: #ffffff;
+  background: var(--primary-action-background, #6d5dfc);
+  border-color: var(--color-primary, #6d5dfc);
+  color: var(--primary-action-text, var(--color-text, #edf3ff));
 }
 
 @media (max-width: 720px) {

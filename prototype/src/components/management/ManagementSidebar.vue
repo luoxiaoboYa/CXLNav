@@ -70,14 +70,12 @@ withDefaults(
   border-radius: 999px;
   background: currentColor;
   transform: translateY(-50%);
-  box-shadow: 0 0 16px currentColor;
+  box-shadow: 0 0 8px currentColor;
 }
 
 .sidebar-item.active {
-  border-color: rgba(139, 233, 253, 0.62);
-  background:
-    radial-gradient(circle at 18% 20%, rgba(139, 233, 253, 0.22), transparent 38%),
-    rgba(61, 90, 254, 0.34);
+  border-color: var(--sidebar-active-border, rgba(139, 233, 253, 0.62));
+  background: var(--sidebar-active-background, var(--control-background, rgba(24, 35, 90, 0.76)));
   color: var(--color-text, #edf3ff);
   font-weight: 700;
 }

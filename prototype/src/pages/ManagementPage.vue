@@ -97,7 +97,7 @@ const panelCount = computed(() => Object.keys(panelMap).length)
     radial-gradient(circle at 16% 22%, rgba(139, 233, 253, 0.18), transparent 28%),
     radial-gradient(circle at 86% 12%, rgba(109, 93, 252, 0.22), transparent 28%),
     var(--management-surface-strong);
-  box-shadow: var(--shadow-glow, 0 18px 70px rgba(61, 90, 254, 0.22));
+  box-shadow: var(--shadow-glow, 0 10px 28px rgba(61, 90, 254, 0.14));
 }
 
 .page-header::after {
@@ -188,7 +188,7 @@ const panelCount = computed(() => Object.keys(panelMap).length)
   border-radius: 24px;
   background:
     radial-gradient(circle at 24% 12%, rgba(139, 233, 253, 0.1), transparent 28%),
-    rgba(8, 11, 31, 0.22);
+    var(--sidebar-panel-background, var(--management-surface));
 }
 
 .hero-panel {
@@ -213,95 +213,6 @@ const panelCount = computed(() => Object.keys(panelMap).length)
 .management-page :deep(.management-panel),
 .management-page :deep(.settings-panel) {
   color: var(--management-text);
-}
-
-.management-page :deep(.toolbar),
-.management-page :deep(.row-card),
-.management-page :deep(.task-card),
-.management-page :deep(.panel-card),
-.management-page :deep(.category-card),
-.management-page :deep(.tag-card),
-.management-page :deep(.path-card),
-.management-page :deep(.share-card),
-.management-page :deep(.option-card),
-.management-page :deep(.preview-card),
-.management-page :deep(.account-card),
-.management-page :deep(.plugin-card),
-.management-page :deep(.recycle-card),
-.management-page :deep(.import-card),
-.management-page :deep(.preference-card),
-.management-page :deep(.governance-panel),
-.management-page :deep(.merge-note),
-.management-page :deep(.flow-panel),
-.management-page :deep(.preview-panel),
-.management-page :deep(.create-panel),
-.management-page :deep(.info-card) {
-  border-color: rgba(139, 233, 253, 0.2) !important;
-  background:
-    radial-gradient(circle at 12% 0%, rgba(139, 233, 253, 0.08), transparent 24%),
-    var(--management-control) !important;
-  color: var(--management-text) !important;
-}
-
-.management-page :deep(.rule-strip span) {
-  border: 1px solid rgba(139, 233, 253, 0.26) !important;
-  background: rgba(139, 233, 253, 0.12) !important;
-  color: var(--management-accent) !important;
-}
-
-.management-page :deep(.task-card > div > strong),
-.management-page :deep(.preview-card strong) {
-  color: var(--management-accent) !important;
-}
-
-.management-page :deep(button),
-.management-page :deep(.tab-button),
-.management-page :deep(.ghost-action),
-.management-page :deep(a) {
-  border-color: var(--management-border) !important;
-  background: rgba(24, 35, 90, 0.62) !important;
-  color: var(--management-text) !important;
-}
-
-.management-page :deep(button:hover),
-.management-page :deep(a:hover) {
-  border-color: rgba(139, 233, 253, 0.5) !important;
-  background: rgba(61, 90, 254, 0.22) !important;
-}
-
-.management-page :deep(.active),
-.management-page :deep(.tab-button.active),
-.management-page :deep(.primary-action),
-.management-page :deep(.primary-button),
-.management-page :deep(button.complete) {
-  border-color: rgba(139, 233, 253, 0.62) !important;
-  background:
-    radial-gradient(circle at 18% 18%, rgba(139, 233, 253, 0.24), transparent 36%),
-    rgba(61, 90, 254, 0.34) !important;
-  color: #ffffff !important;
-}
-
-.management-page :deep(p),
-.management-page :deep(span),
-.management-page :deep(li),
-.management-page :deep(dd) {
-  color: var(--management-muted);
-}
-
-.management-page :deep(h2),
-.management-page :deep(h3),
-.management-page :deep(dt),
-.management-page :deep(strong) {
-  color: var(--management-text);
-}
-
-.management-page :deep(.status-message),
-.management-page :deep(.empty-state),
-.management-page :deep(.action-result),
-.management-page :deep(.review-hint),
-.management-page :deep(.merge-hint),
-.management-page :deep(.inline-message) {
-  color: var(--management-accent) !important;
 }
 
 @media (max-width: 960px) {

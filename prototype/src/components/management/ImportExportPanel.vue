@@ -107,9 +107,11 @@ const getPreviewStatusCount = (status: (typeof previewStatusTabs)[number]) => {
   display: grid;
   gap: 12px;
   padding: 16px;
-  border: 1px solid #d7d2c6;
+  border: 1px solid var(--color-border, rgba(139, 233, 253, 0.22));
   border-radius: 18px;
-  background: #ffffff;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(139, 233, 253, 0.08), transparent 24%),
+    var(--control-background, rgba(24, 35, 90, 0.76));
 }
 
 dl {
@@ -122,7 +124,7 @@ dl div,
 .flow-panel {
   padding: 12px;
   border-radius: 16px;
-  background: #fbf8f2;
+  background: var(--muted-panel-background, rgba(8, 11, 31, 0.28));
 }
 
 h3,
@@ -134,7 +136,7 @@ dd {
 
 p,
 dd {
-  color: #61685f;
+  color: var(--color-text-muted, #9aa8d4);
 }
 
 dt {
@@ -145,17 +147,19 @@ dt {
 .flow-panel {
   display: grid;
   gap: 8px;
-  border: 1px dashed #b8c9be;
-  background: #f5fbf8;
+  border: 1px dashed rgba(139, 233, 253, 0.34);
+  background: var(--muted-panel-background, rgba(8, 11, 31, 0.28));
 }
 
 .preview-panel {
   display: grid;
   gap: 14px;
   padding: 16px;
-  border: 1px solid #b8c9be;
+  border: 1px solid var(--color-border, rgba(139, 233, 253, 0.22));
   border-radius: 18px;
-  background: #f5fbf8;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(139, 233, 253, 0.08), transparent 24%),
+    var(--control-background, rgba(24, 35, 90, 0.76));
 }
 
 .preview-grid {
@@ -168,13 +172,13 @@ dt {
   display: grid;
   gap: 8px;
   padding: 12px;
-  border: 1px solid #d7d2c6;
+  border: 1px solid var(--color-border, rgba(139, 233, 253, 0.22));
   border-radius: 16px;
-  background: #ffffff;
+  background: var(--muted-panel-background, rgba(8, 11, 31, 0.28));
 }
 
 .preview-card strong {
-  color: #1b6a52;
+  color: var(--color-accent, #8be9fd);
 }
 
 .preview-card h4,
@@ -196,27 +200,28 @@ dt {
 
 .empty-state {
   margin: 0;
-  color: #1b6a52;
+  color: var(--color-accent, #8be9fd);
   font-weight: 700;
 }
 
 button {
   justify-self: start;
-  border: 1px solid #d7d2c6;
+  border: 1px solid var(--color-border, rgba(139, 233, 253, 0.22));
   border-radius: 12px;
-  background: #fbf8f2;
+  background: var(--control-background, rgba(24, 35, 90, 0.76));
+  color: var(--color-text, #edf3ff);
   padding: 10px 12px;
   font: inherit;
 }
 
 .tab-button {
-  color: #61685f;
+  color: var(--color-text-muted, #9aa8d4);
 }
 
 .tab-button.active {
-  border-color: #1b6a52;
-  background: #deeee7;
-  color: #1b6a52;
+  border-color: rgba(139, 233, 253, 0.62);
+  background: rgba(61, 90, 254, 0.34);
+  color: var(--color-text, #edf3ff);
   font-weight: 700;
 }
 

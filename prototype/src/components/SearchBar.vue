@@ -28,7 +28,7 @@ input {
   outline: none;
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.03),
-    0 18px 42px rgba(8, 11, 31, 0.28);
+    0 8px 24px rgba(8, 11, 31, 0.16);
 }
 
 input::placeholder {
@@ -39,7 +39,7 @@ input:focus {
   border-color: var(--color-accent);
   box-shadow:
     0 0 0 3px rgba(139, 233, 253, 0.14),
-    0 18px 42px rgba(61, 90, 254, 0.24);
+    0 8px 22px rgba(61, 90, 254, 0.14);
 }
 
 .sr-only {

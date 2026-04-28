@@ -46,7 +46,7 @@ provide(themeKey, {
   --color-text: #edf3ff;
   --color-text-muted: #9aa8d4;
   --color-border: rgba(139, 233, 253, 0.22);
-  --shadow-glow: 0 18px 70px rgba(61, 90, 254, 0.22);
+  --shadow-glow: 0 10px 28px rgba(61, 90, 254, 0.14);
   --shell-background:
     radial-gradient(circle at 12% 8%, rgba(139, 233, 253, 0.18), transparent 24%),
     radial-gradient(circle at 78% 0%, rgba(109, 93, 252, 0.28), transparent 28%),
@@ -60,6 +60,11 @@ provide(themeKey, {
   --control-background-hover: rgba(61, 90, 254, 0.28);
   --chip-background: rgba(139, 233, 253, 0.12);
   --muted-panel-background: rgba(8, 11, 31, 0.28);
+  --sidebar-panel-background: rgba(17, 24, 59, 0.32);
+  --sidebar-active-background:
+    radial-gradient(circle at 18% 20%, rgba(139, 233, 253, 0.22), transparent 38%),
+    rgba(61, 90, 254, 0.34);
+  --sidebar-active-border: rgba(139, 233, 253, 0.62);
   --primary-action-background: #6d5dfc;
   --primary-action-text: #ffffff;
   --danger-text: #ff9fba;
@@ -82,7 +87,7 @@ provide(themeKey, {
   --color-text: #152044;
   --color-text-muted: #5e6b91;
   --color-border: rgba(61, 90, 254, 0.18);
-  --shadow-glow: 0 18px 54px rgba(61, 90, 254, 0.16);
+  --shadow-glow: 0 10px 24px rgba(61, 90, 254, 0.1);
   --shell-background:
     radial-gradient(circle at 12% 8%, rgba(139, 233, 253, 0.34), transparent 24%),
     radial-gradient(circle at 82% 0%, rgba(109, 93, 252, 0.18), transparent 28%),
@@ -96,6 +101,11 @@ provide(themeKey, {
   --control-background-hover: rgba(61, 90, 254, 0.1);
   --chip-background: rgba(61, 90, 254, 0.08);
   --muted-panel-background: rgba(237, 242, 255, 0.74);
+  --sidebar-panel-background: rgba(237, 242, 255, 0.72);
+  --sidebar-active-background:
+    radial-gradient(circle at 18% 20%, rgba(0, 143, 179, 0.14), transparent 38%),
+    rgba(61, 90, 254, 0.1);
+  --sidebar-active-border: rgba(61, 90, 254, 0.32);
   --primary-action-background: #5b4df3;
   --primary-action-text: #ffffff;
   --danger-text: #b4234f;

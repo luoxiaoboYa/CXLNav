@@ -1,6 +1,11 @@
 import { fireEvent, render, screen } from '@testing-library/vue'
+import { readFileSync, readdirSync } from 'node:fs'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 import ManagementPage from '../ManagementPage.vue'
+
+const currentDir = dirname(fileURLToPath(import.meta.url))
 
 describe('management center panels', () => {
   test('switches between focused management panels', async () => {
@@ -46,5 +51,63 @@ describe('management center panels', () => {
 
     await fireEvent.click(screen.getByRole('button', { name: '回收站' }))
     expect(screen.getByRole('heading', { name: '回收站' })).toBeInTheDocument()
+  })
+
+  test('uses component-level K6 tokens instead of legacy prototype colors', () => {
+    const managementDir = join(currentDir, '../../components/management')
+    const sourceFiles = [
+      join(currentDir, '../ManagementPage.vue'),
+      join(currentDir, '../../components/SiteEditorForm.vue'),
+      join(currentDir, '../../components/SiteEditorModal.vue'),
+      ...readdirSync(managementDir)
+        .filter((fileName) => fileName.endsWith('.vue'))
+        .map((fileName) => join(managementDir, fileName))
+    ]
+    const legacyPalette = [
+      '#d7d2c6',
+      '#fbf8f2',
+      '#ffffff',
+      '#61685f',
+      '#1b6a52',
+      '#deeee7',
+      '#fffdf8',
+      '#f5fbf8',
+      '#b8c9be'
+    ]
+
+    const offenders = sourceFiles.flatMap((filePath) => {
+      const source = readFileSync(filePath, 'utf8')
+      const legacyMatches = legacyPalette.filter((color) => source.includes(color))
+      const importantMatch = source.includes('!important') ? ['!important'] : []
+
+      return [...legacyMatches, ...importantMatch].map((match) => `${filePath}: ${match}`)
+    })
+
+    expect(offenders).toEqual([])
+  })
+
+  test('keeps K6 management shadows restrained', () => {
+    const sourceFiles = [
+      join(currentDir, '../../layouts/AppShell.vue'),
+      join(currentDir, '../ManagementPage.vue'),
+      join(currentDir, '../../components/SiteEditorModal.vue'),
+      join(currentDir, '../../components/management/ManagementSidebar.vue')
+    ]
+    const heavyShadowTokens = [
+      '0 18px 70px',
+      '0 24px 60px',
+      '0 18px 54px',
+      '0 0 16px currentColor'
+    ]
+
+    const offenders = sourceFiles.flatMap((filePath) => {
+      const source = readFileSync(filePath, 'utf8')
+
+      return heavyShadowTokens
+        .filter((token) => source.includes(token))
+        .map((token) => `${filePath}: ${token}`)
+    })
+
+    expect(offenders).toEqual([])
   })
 })

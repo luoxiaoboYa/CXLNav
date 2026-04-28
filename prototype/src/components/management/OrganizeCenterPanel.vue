@@ -192,7 +192,7 @@ button {
   border: 1px solid var(--color-primary, #6d5dfc);
   border-radius: 12px;
   background: var(--primary-action-background, #6d5dfc);
-  color: var(--primary-action-text, #ffffff);
+  color: var(--primary-action-text, var(--color-text, #edf3ff));
   padding: 10px 12px;
   font: inherit;
 }

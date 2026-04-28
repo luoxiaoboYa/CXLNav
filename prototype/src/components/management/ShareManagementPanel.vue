@@ -85,9 +85,11 @@ const getStatusCount = (status: (typeof statusTabs)[number]) => {
   gap: 12px;
   align-items: center;
   padding: 16px;
-  border: 1px solid #d7d2c6;
+  border: 1px solid var(--color-border, rgba(139, 233, 253, 0.22));
   border-radius: 18px;
-  background: #ffffff;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(139, 233, 253, 0.08), transparent 24%),
+    var(--control-background, rgba(24, 35, 90, 0.76));
 }
 
 h3,
@@ -96,18 +98,18 @@ p {
 }
 
 p {
-  color: #61685f;
+  color: var(--color-text-muted, #9aa8d4);
 }
 
 .empty-state {
   margin: 0;
-  color: #1b6a52;
+  color: var(--color-accent, #8be9fd);
   font-weight: 700;
 }
 
 .review-hint {
   margin-top: 8px;
-  color: #1b6a52;
+  color: var(--color-accent, #8be9fd);
 }
 
 .row-actions {
@@ -120,9 +122,9 @@ p {
   display: grid;
   gap: 10px;
   padding: 16px;
-  border: 1px dashed #b8c9be;
+  border: 1px dashed rgba(139, 233, 253, 0.34);
   border-radius: 18px;
-  background: #f5fbf8;
+  background: var(--muted-panel-background, rgba(8, 11, 31, 0.28));
 }
 
 .governance-panel ul {
@@ -133,21 +135,22 @@ p {
 }
 
 button {
-  border: 1px solid #d7d2c6;
+  border: 1px solid var(--color-border, rgba(139, 233, 253, 0.22));
   border-radius: 12px;
-  background: #fbf8f2;
+  background: var(--control-background, rgba(24, 35, 90, 0.76));
+  color: var(--color-text, #edf3ff);
   padding: 10px 12px;
   font: inherit;
 }
 
 .tab-button {
-  color: #61685f;
+  color: var(--color-text-muted, #9aa8d4);
 }
 
 .tab-button.active {
-  border-color: #1b6a52;
-  background: #deeee7;
-  color: #1b6a52;
+  border-color: rgba(139, 233, 253, 0.62);
+  background: rgba(61, 90, 254, 0.34);
+  color: var(--color-text, #edf3ff);
   font-weight: 700;
 }
 

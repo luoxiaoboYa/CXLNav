@@ -203,7 +203,7 @@ import {
   color: #ffffff;
   text-align: center;
   transform: translate(-50%, -50%);
-  box-shadow: 0 0 46px rgba(109, 93, 252, 0.55);
+  box-shadow: 0 0 28px rgba(109, 93, 252, 0.34);
 }
 
 .galaxy-core span {
@@ -224,7 +224,7 @@ import {
   border: 1px solid rgba(139, 233, 253, 0.42);
   border-radius: 18px;
   background: var(--control-background);
-  box-shadow: 0 0 24px rgba(61, 90, 254, 0.18);
+  box-shadow: 0 0 14px rgba(61, 90, 254, 0.12);
 }
 
 .orbit-card::before {

@@ -53,10 +53,10 @@ import { preferenceRecords } from '../../data/settings'
 }
 
 select {
-  border: 1px solid #d7d2c6;
+  border: 1px solid var(--color-border, rgba(139, 233, 253, 0.22));
   border-radius: 12px;
-  background: #ffffff;
-  color: #1f251f;
+  background: var(--control-background, rgba(24, 35, 90, 0.76));
+  color: var(--color-text, #edf3ff);
   padding: 10px 12px;
   font: inherit;
 }
@@ -67,9 +67,11 @@ select {
 
 .summary-card {
   padding: 16px;
-  border: 1px solid #d7d2c6;
+  border: 1px solid var(--color-border, rgba(139, 233, 253, 0.22));
   border-radius: 18px;
-  background: #ffffff;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(139, 233, 253, 0.08), transparent 24%),
+    var(--control-background, rgba(24, 35, 90, 0.76));
 }
 
 h3,
@@ -79,7 +81,7 @@ p {
 
 p {
   margin-top: 8px;
-  color: #61685f;
+  color: var(--color-text-muted, #9aa8d4);
 }
 
 @media (max-width: 960px) {
