@@ -10,6 +10,31 @@ const jsonResponse = (payload: unknown) =>
     status: 200
   }))
 
+const backendSiteDto = (overrides: Record<string, unknown> = {}) => ({
+  id: 'site-backend-docs',
+  title: 'Backend Docs',
+  url: 'https://example.com/backend',
+  normalizedUrl: 'https://example.com/backend',
+  faviconUrl: null,
+  description: 'Backend API entry',
+  purpose: null,
+  personalNote: 'Detail note from backend',
+  category: { id: 'cat-docs', name: 'Docs' },
+  bookmarkPath: { id: 'path-api', fullPath: 'Docs / API' },
+  tags: [{ id: 'tag-backend', name: 'Backend' }],
+  source: 'manual',
+  sourcePath: null,
+  sourceRecommendationId: null,
+  securityStatus: 'safe',
+  organizeStatus: 'complete',
+  archiveStatus: 'active',
+  shareStatus: 'none',
+  createdAt: '2026-04-28T01:00:00.000Z',
+  updatedAt: '2026-04-28T02:00:00.000Z',
+  lastOpenedAt: '2026-04-28T03:00:00.000Z',
+  ...overrides
+})
+
 describe('my sites page', () => {
   afterEach(() => {
     localStorage.clear()
@@ -328,6 +353,101 @@ describe('my sites page', () => {
       expect.objectContaining({
         headers: expect.any(Headers)
       })
+    )
+  })
+
+  test('wires authenticated detail actions to personal site backend endpoints', async () => {
+    localStorage.setItem('cxsearch_api_token', 'test-token')
+    let backendSite = backendSiteDto()
+    const openMock = vi.spyOn(window, 'open').mockImplementation(() => null)
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
+      const url = input.toString()
+
+      if (url.includes('/personal-sites/site-backend-docs/open')) {
+        backendSite = backendSiteDto({ lastOpenedAt: '2026-04-29T01:00:00.000Z' })
+        return jsonResponse({ url: backendSite.url, lastOpenedAt: backendSite.lastOpenedAt })
+      }
+
+      if (url.includes('/personal-sites/site-backend-docs/archive')) {
+        backendSite = backendSiteDto({ archiveStatus: 'archived' })
+        return jsonResponse({ site: backendSite })
+      }
+
+      if (url.includes('/personal-sites/site-backend-docs/recheck')) {
+        backendSite = backendSiteDto({ archiveStatus: 'archived', securityStatus: 'checking' })
+        return jsonResponse({ validationTaskId: 'task-1', status: 'checking' })
+      }
+
+      if (url.includes('/personal-sites/site-backend-docs') && init?.method === 'DELETE') {
+        return jsonResponse({ success: true })
+      }
+
+      if (url.includes('/personal-sites/site-backend-docs')) {
+        return jsonResponse({
+          site: backendSite,
+          recommendationInfo: { exists: false },
+          validationLatest: null
+        })
+      }
+
+      if (url.includes('/personal-sites')) {
+        return jsonResponse({
+          items: [backendSite],
+          page: 1,
+          pageSize: 20,
+          total: 1,
+          summary: { activeCount: 1, archivedCount: 0, todoCount: 0 }
+        })
+      }
+
+      if (url.includes('/categories')) {
+        return jsonResponse({ items: [backendSite.category], total: 1 })
+      }
+
+      if (url.includes('/tags')) {
+        return jsonResponse({ items: backendSite.tags, total: 1 })
+      }
+
+      return jsonResponse({})
+    })
+
+    await router.push('/my-sites/site-backend-docs')
+    await router.isReady()
+
+    render(App, {
+      global: {
+        plugins: [router]
+      }
+    })
+
+    expect(await screen.findByRole('heading', { name: 'Backend Docs' })).toBeInTheDocument()
+
+    await fireEvent.click(screen.getByRole('button', { name: '打开站点' }))
+    await waitFor(() => expect(openMock).toHaveBeenCalledWith('https://example.com/backend', '_blank', 'noopener'))
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining('/personal-sites/site-backend-docs/open'),
+      expect.objectContaining({ method: 'POST' })
+    )
+
+    await fireEvent.click(screen.getByRole('button', { name: '归档' }))
+    await waitFor(() => expect(screen.getByRole('button', { name: '恢复' })).toBeInTheDocument())
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining('/personal-sites/site-backend-docs/archive'),
+      expect.objectContaining({ method: 'POST' })
+    )
+
+    await fireEvent.click(screen.getByRole('button', { name: '重新检测' }))
+    await waitFor(() => expect(screen.getByText('安全状态：校验中')).toBeInTheDocument())
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining('/personal-sites/site-backend-docs/recheck'),
+      expect.objectContaining({ method: 'POST' })
+    )
+
+    await fireEvent.click(screen.getByRole('button', { name: '删除' }))
+    await waitFor(() => expect(screen.getByRole('heading', { name: '我的站点' })).toBeInTheDocument())
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining('/personal-sites/site-backend-docs?confirmShared=true'),
+      expect.objectContaining({ method: 'DELETE' })
     )
   })
 })

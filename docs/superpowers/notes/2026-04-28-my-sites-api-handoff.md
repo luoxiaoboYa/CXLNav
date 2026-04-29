@@ -29,6 +29,11 @@ Date: 2026-04-28
 ## Continue Tomorrow
 
 - Continue functional MVP integration, not visual review.
+- Check the authenticated data indicator: users currently cannot tell whether `/my-sites` is showing backend data or prototype fallback data.
+- Login form mismatch was fixed after this note:
+  - MVP now supports true account/email login.
+  - Register creates a unique `username`.
+  - Login accepts `identifier`, which can be either username or email.
 - Recommended next backend integration target:
   - Wire detail-page actions: open tracking, archive/restore, recheck, and delete.
 - Keep browser extension UI simple later; reuse the current web/K6 style.

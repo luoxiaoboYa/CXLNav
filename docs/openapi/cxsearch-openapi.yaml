@@ -22,7 +22,7 @@ paths:
     post:
       tags: [Auth]
       security: []
-      summary: Register with email and password
+      summary: Register with username, email, and password
       requestBody:
         required: true
         content:
@@ -34,7 +34,7 @@ paths:
     post:
       tags: [Auth]
       security: []
-      summary: Login with email and password
+      summary: Login with username/email and password
       requestBody:
         required: true
         content:
@@ -483,6 +483,7 @@ components:
       type: object
       properties:
         id: { type: string }
+        username: { type: string }
         email: { type: string, format: email }
         nickname: { type: string }
         avatarUrl: { type: string, nullable: true }
@@ -491,12 +492,12 @@ components:
         createdAt: { type: string, format: date-time }
     RegisterRequest:
       type: object
-      required: [email, password, nickname]
-      properties: { email: { type: string, format: email }, password: { type: string, minLength: 8 }, nickname: { type: string } }
+      required: [username, email, password, nickname]
+      properties: { username: { type: string, minLength: 3, maxLength: 32 }, email: { type: string, format: email }, password: { type: string, minLength: 8 }, nickname: { type: string } }
     LoginRequest:
       type: object
-      required: [email, password]
-      properties: { email: { type: string, format: email }, password: { type: string } }
+      required: [identifier, password]
+      properties: { identifier: { type: string, description: Account username or email address }, password: { type: string } }
     AuthResponse:
       type: object
       properties: { token: { type: string }, user: { $ref: '#/components/schemas/User' } }

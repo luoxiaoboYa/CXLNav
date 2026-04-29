@@ -22,6 +22,7 @@ public class LocalSchemaInitializer implements ApplicationRunner {
     jdbcTemplate.execute("""
         create table users (
           id varchar(36) primary key,
+          username varchar(80) not null unique,
           email varchar(255) not null unique,
           password_hash varchar(255) not null,
           nickname varchar(80) not null,

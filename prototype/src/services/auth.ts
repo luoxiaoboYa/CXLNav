@@ -22,12 +22,18 @@ const setSession = (token: string | null, user: AuthUser | null) => {
   setStoredToken(token)
 }
 
+export const resetAuthState = () => {
+  setSession(null, null)
+  state.loading = false
+  state.error = ''
+}
+
 export const useAuth = () => {
-  const login = async (email: string, password: string) => {
+  const login = async (identifier: string, password: string) => {
     state.loading = true
     state.error = ''
     try {
-      const response = await api.login({ email, password })
+      const response = await api.login({ identifier, password })
       setSession(response.token, response.user)
       return response.user
     } catch (error) {
@@ -38,11 +44,11 @@ export const useAuth = () => {
     }
   }
 
-  const register = async (email: string, password: string, nickname: string) => {
+  const register = async (username: string, email: string, password: string, nickname: string) => {
     state.loading = true
     state.error = ''
     try {
-      const response = await api.register({ email, password, nickname })
+      const response = await api.register({ username, email, password, nickname })
       setSession(response.token, response.user)
       return response.user
     } catch (error) {
@@ -54,7 +60,18 @@ export const useAuth = () => {
   }
 
   const loadMe = async () => {
-    if (!state.token || state.user) {
+    const storedToken = getStoredToken()
+    if (!storedToken) {
+      setSession(null, null)
+      return null
+    }
+
+    if (state.token !== storedToken) {
+      state.token = storedToken
+      state.user = null
+    }
+
+    if (state.user) {
       return state.user
     }
 

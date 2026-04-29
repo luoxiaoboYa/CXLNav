@@ -172,7 +172,7 @@ export const profileRecords: ProfileRecord[] = [
 ]
 
 export const securityRecords: SecurityRecord[] = [
-  { title: '登录方式', status: 'MVP 使用邮箱 + 密码', hint: 'Google / GitHub OAuth 已调整为二期占位。' },
+  { title: '登录方式', status: 'MVP 使用账号/邮箱 + 密码', hint: 'Google / GitHub OAuth 已调整为二期占位。' },
   { title: '密码状态', status: '已支持找回密码入口', hint: '注册表单已包含确认密码。' },
   { title: '设备提醒', status: '最近一次登录：今天 09:20', hint: '后续可扩展为登录设备列表。' }
 ]

@@ -278,7 +278,7 @@ font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
 
 ### 7.1 登录 / 注册页
 
-目标：完成邮箱密码注册登录，第三方授权仅作为二期占位。
+目标：完成账号/邮箱密码注册登录，第三方授权仅作为二期占位。
 
 布局：
 

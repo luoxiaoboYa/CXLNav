@@ -1,9 +1,22 @@
-import { fireEvent, render, screen } from '@testing-library/vue'
+import { fireEvent, render, screen, waitFor } from '@testing-library/vue'
+import { afterEach, vi } from 'vitest'
 
 import App from '../../App.vue'
 import router from '../../router'
+import { resetAuthState } from '../../services/auth'
+
+const jsonResponse = (payload: unknown) =>
+  Promise.resolve(new Response(JSON.stringify(payload), {
+    headers: { 'Content-Type': 'application/json' },
+    status: 200
+  }))
 
 describe('remaining prototype routes', () => {
+  afterEach(() => {
+    resetAuthState()
+    vi.restoreAllMocks()
+  })
+
   test('renders the auth page structure', async () => {
     await router.push('/auth')
     await router.isReady()
@@ -14,12 +27,91 @@ describe('remaining prototype routes', () => {
       }
     })
 
-    expect(screen.getByRole('heading', { name: '登录与注册' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '账号登录' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '继续登录' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Google OAuth（二期）' })).toBeDisabled()
-    expect(screen.getByRole('button', { name: 'GitHub OAuth（二期）' })).toBeDisabled()
-    expect(screen.getByRole('link', { name: '忘记密码' })).toBeInTheDocument()
-    expect(screen.getByText('初始账号')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '创建账号' })).toBeInTheDocument()
+    expect(screen.queryByText('使用账号名或邮箱继续访问你的个人站点库。')).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: '忘记密码' })).not.toBeInTheDocument()
+    expect(screen.queryByText('二期快捷授权占位')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Google OAuth（二期）' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'GitHub OAuth（二期）' })).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('账号')).not.toBeInTheDocument()
+    expect(screen.queryByText('初始账号')).not.toBeInTheDocument()
+    expect(screen.queryByText('登录后管理中心会读取你的真实后端数据。')).not.toBeInTheDocument()
+    expect(document.querySelector('.auth-layout')).toHaveClass('wide-auth')
+  })
+
+  test('keeps registration behind a secondary create account action', async () => {
+    await router.push('/auth')
+    await router.isReady()
+
+    render(App, {
+      global: {
+        plugins: [router]
+      }
+    })
+
+    expect(screen.queryByLabelText('账号')).not.toBeInTheDocument()
+
+    await fireEvent.click(screen.getByRole('button', { name: '创建账号' }))
+
+    expect(screen.getByRole('heading', { name: '填写注册信息' })).toBeInTheDocument()
+    expect(screen.queryByText('填写基础信息后即可进入管理中心。')).not.toBeInTheDocument()
+    expect(screen.getByLabelText('账号')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '返回登录' })).toBeInTheDocument()
+
+    await fireEvent.click(screen.getByRole('button', { name: '返回登录' }))
+
+    expect(screen.getByRole('heading', { name: '账号登录' })).toBeInTheDocument()
+    expect(screen.queryByLabelText('账号')).not.toBeInTheDocument()
+  })
+
+  test('logs in with an account or email identifier without browser email validation', async () => {
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
+      const url = input.toString()
+
+      if (url.includes('/auth/login')) {
+        return jsonResponse({
+          token: 'test-token',
+          user: {
+            id: 'user-1',
+            username: 'coreaccount',
+            email: 'core-account@example.com',
+            nickname: 'Core Account',
+            avatarUrl: null,
+            role: 'user',
+            status: 'active'
+          }
+        })
+      }
+
+      return jsonResponse({})
+    })
+
+    await router.push('/auth')
+    await router.isReady()
+
+    render(App, {
+      global: {
+        plugins: [router]
+      }
+    })
+
+    const accountInput = screen.getByLabelText('账号 / 邮箱') as HTMLInputElement
+    expect(accountInput.type).toBe('text')
+
+    await fireEvent.update(accountInput, 'coreaccount')
+    await fireEvent.update(screen.getByLabelText('密码'), 'password123')
+    await fireEvent.click(screen.getByRole('button', { name: '继续登录' }))
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining('/auth/login'),
+        expect.objectContaining({
+          body: JSON.stringify({ identifier: 'coreaccount', password: 'password123' })
+        })
+      )
+    })
   })
 
   test('renders the site editor page structure', async () => {

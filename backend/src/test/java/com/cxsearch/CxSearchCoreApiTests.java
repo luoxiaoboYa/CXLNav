@@ -60,6 +60,27 @@ class CxSearchCoreApiTests {
         .andExpect(jsonPath("$.summary.activeCount").value(1));
   }
 
+  @Test
+  void logsInWithUsernameOrEmailIdentifier() throws Exception {
+    postJson("/api/v1/auth/register", Map.of(
+        "username", "coreaccount",
+        "email", "core-account@example.com",
+        "password", "password123",
+        "nickname", "Core Account"));
+
+    postJson("/api/v1/auth/login", Map.of(
+        "identifier", "coreaccount",
+        "password", "password123"));
+
+    mockMvc.perform(post("/api/v1/auth/login")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(Map.of(
+                "identifier", "core-account@example.com",
+                "password", "password123"))))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.user.username").value("coreaccount"));
+  }
+
   private JsonNode postJson(String path, Map<String, Object> body) throws Exception {
     return objectMapper.readTree(mockMvc.perform(post(path)
             .contentType(MediaType.APPLICATION_JSON)

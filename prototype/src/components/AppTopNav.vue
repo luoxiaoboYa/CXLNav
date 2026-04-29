@@ -1,31 +1,48 @@
 <template>
-  <header class="top-nav">
-    <div class="brand">CXSearch</div>
+  <header class="top-nav" :class="{ 'auth-nav': isAuthRoute }">
+    <RouterLink class="brand" to="/">CXSearch</RouterLink>
 
-    <nav aria-label="主导航" class="nav-links">
+    <nav v-if="!isAuthRoute" aria-label="主导航" class="nav-links">
       <RouterLink to="/">首页</RouterLink>
       <RouterLink to="/my-sites">我的站点</RouterLink>
       <RouterLink to="/discover">推荐发现</RouterLink>
     </nav>
 
     <div class="context-info" aria-label="日期与天气">
-      <span class="info-chip">4月23日 周四</span>
+      <span v-if="!isAuthRoute" class="info-chip">4月23日 周四</span>
       <span class="info-chip weather-chip">天气 多云 24°C</span>
     </div>
 
     <div class="actions">
-      <button type="button" aria-label="搜索">搜索</button>
+      <button v-if="!isAuthRoute" type="button" aria-label="搜索">搜索</button>
       <ThemeToggle />
-      <RouterLink aria-label="设置" to="/settings">设置</RouterLink>
-      <RouterLink aria-label="注册 / 登录" to="/auth">注册 / 登录</RouterLink>
+      <RouterLink v-if="!isAuthRoute" aria-label="设置" to="/settings">设置</RouterLink>
+      <RouterLink v-if="!isAuthRoute || auth.state.user" :aria-label="authActionLabel" :to="authActionTarget">
+        {{ authActionLabel }}
+      </RouterLink>
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
-import { RouterLink } from 'vue-router'
+import { computed, onMounted } from 'vue'
+import { RouterLink, useRoute } from 'vue-router'
 
 import ThemeToggle from './ThemeToggle.vue'
+import { useAuth } from '../services/auth'
+
+const auth = useAuth()
+const route = useRoute()
+const isAuthRoute = computed(() => route.path === '/auth')
+const authActionLabel = computed(() => {
+  const user = auth.state.user
+  return user?.nickname || user?.username || user?.email || '注册 / 登录'
+})
+const authActionTarget = computed(() => auth.state.user ? '/settings' : '/auth')
+
+onMounted(() => {
+  void auth.loadMe()
+})
 </script>
 
 <style scoped>
@@ -49,6 +66,7 @@ import ThemeToggle from './ThemeToggle.vue'
   font-weight: 700;
   color: var(--color-text);
   letter-spacing: 0;
+  text-decoration: none;
 }
 
 .nav-links,
@@ -65,6 +83,7 @@ import ThemeToggle from './ThemeToggle.vue'
 }
 
 .nav-links a,
+.brand,
 .info-chip,
 .actions a,
 .actions button {
@@ -84,6 +103,7 @@ import ThemeToggle from './ThemeToggle.vue'
 }
 
 .nav-links a:hover,
+.brand:hover,
 .actions a:hover,
 .actions button:hover,
 .nav-links a.router-link-active {
@@ -101,12 +121,20 @@ import ThemeToggle from './ThemeToggle.vue'
   color: var(--color-accent);
 }
 
+.auth-nav {
+  grid-template-columns: 160px 1fr auto;
+}
+
+.auth-nav .context-info {
+  justify-content: center;
+}
+
 @media (max-width: 1120px) {
-  .top-nav {
+  .top-nav:not(.auth-nav) {
     grid-template-columns: 160px 1fr auto;
   }
 
-  .context-info {
+  .top-nav:not(.auth-nav) .context-info {
     grid-column: 2 / 4;
     justify-content: flex-start;
   }

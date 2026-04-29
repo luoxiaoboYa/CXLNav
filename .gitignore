@@ -1,6 +1,7 @@
 ﻿# Dependencies
 node_modules/
 prototype/node_modules/
+backend/.m2/
 
 # Build outputs
 dist/

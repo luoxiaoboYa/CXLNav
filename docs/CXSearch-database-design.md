@@ -36,6 +36,7 @@ deleted_at datetime(3) null
 ```sql
 create table users (
   id varchar(36) primary key,
+  username varchar(80) not null,
   email varchar(255) not null,
   password_hash varchar(255) not null,
   nickname varchar(80) not null,
@@ -46,6 +47,7 @@ create table users (
   updated_at datetime(3) not null,
   last_login_at datetime(3) null,
   deleted_at datetime(3) null,
+  unique key uk_users_username (username),
   unique key uk_users_email (email),
   key idx_users_status (status),
   key idx_users_role (role)
@@ -56,7 +58,7 @@ create table users (
 
 - `role`：`user`、`admin`。
 - `status`：`active`、`disabled`、`deleted`。
-- MVP 只做邮箱 + 密码登录，OAuth 字段暂不加入。
+- MVP 只做账号/邮箱 + 密码登录，OAuth 字段暂不加入。
 
 ## 4. 分类、标签、书签路径
 

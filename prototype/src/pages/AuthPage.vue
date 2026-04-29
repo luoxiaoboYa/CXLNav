@@ -1,47 +1,37 @@
 <template>
   <section class="page">
-    <header class="page-header">
-      <h1>登录与注册</h1>
-      <p>MVP 支持邮箱 + 密码登录注册；第三方授权仅保留二期占位。</p>
-    </header>
-
-    <section class="notice-panel">
-      <div>
-        <strong>初始账号</strong>
-        <p v-if="auth.state.user">当前已登录：{{ auth.state.user.nickname }}（{{ auth.state.user.email }}）</p>
-        <p v-else>注册或登录后，管理中心会使用真实后端数据。</p>
-      </div>
-      <button v-if="auth.state.user" class="notice-tag button-tag" type="button" @click="handleLogout">退出登录</button>
-      <span v-else class="notice-tag">Bearer Token</span>
-    </section>
-
     <p v-if="message" class="status-message">{{ message }}</p>
     <p v-if="auth.state.error" class="error-message">{{ auth.state.error }}</p>
 
-    <div class="auth-layout">
-      <form class="panel" @submit.prevent="handleLogin">
-        <h2>登录</h2>
+    <div class="auth-layout wide-auth">
+      <form v-if="authMode === 'login'" class="panel auth-panel" @submit.prevent="handleLogin">
+        <div class="panel-header">
+          <h2>账号登录</h2>
+        </div>
         <label>
           <span>账号 / 邮箱</span>
-          <input v-model="loginEmail" type="email" placeholder="name@example.com" />
+          <input v-model="loginIdentifier" type="text" placeholder="账号名或 name@example.com" />
         </label>
         <label>
           <span>密码</span>
           <input v-model="loginPassword" type="password" placeholder="输入密码" />
         </label>
-        <a class="text-link" href="#">忘记密码</a>
         <button type="submit" :disabled="auth.state.loading">{{ auth.state.loading ? '处理中…' : '继续登录' }}</button>
 
-        <div class="divider">二期快捷授权占位</div>
-
-        <div class="social-actions">
-          <button type="button" class="secondary" disabled>Google OAuth（二期）</button>
-          <button type="button" class="secondary" disabled>GitHub OAuth（二期）</button>
+        <div class="switch-line">
+          <span>还没有账号？</span>
+          <button class="link-button" type="button" @click="switchToRegister">创建账号</button>
         </div>
       </form>
 
-      <form class="panel" @submit.prevent="handleRegister">
-        <h2>注册</h2>
+      <form v-else class="panel auth-panel" @submit.prevent="handleRegister">
+        <div class="panel-header">
+          <h2>填写注册信息</h2>
+        </div>
+        <label>
+          <span>账号</span>
+          <input v-model="registerUsername" type="text" placeholder="3-32 位字母、数字、下划线或短横线" />
+        </label>
         <label>
           <span>昵称</span>
           <input v-model="registerNickname" type="text" placeholder="你的称呼" />
@@ -59,6 +49,11 @@
           <input v-model="confirmPassword" type="password" placeholder="再次输入密码" />
         </label>
         <button type="submit" :disabled="auth.state.loading">{{ auth.state.loading ? '处理中…' : '创建账号' }}</button>
+
+        <div class="switch-line">
+          <span>已经有账号？</span>
+          <button class="link-button" type="button" @click="switchToLogin">返回登录</button>
+        </div>
       </form>
     </div>
   </section>
@@ -71,8 +66,10 @@ import { useAuth } from '../services/auth'
 
 const auth = useAuth()
 
-const loginEmail = ref('')
+const authMode = ref<'login' | 'register'>('login')
+const loginIdentifier = ref('')
 const loginPassword = ref('')
+const registerUsername = ref('')
 const registerNickname = ref('')
 const registerEmail = ref('')
 const registerPassword = ref('')
@@ -85,8 +82,20 @@ onMounted(() => {
 
 const handleLogin = async () => {
   message.value = ''
-  await auth.login(loginEmail.value, loginPassword.value)
+  await auth.login(loginIdentifier.value, loginPassword.value)
   message.value = '登录成功，管理中心已可读取真实后端数据。'
+}
+
+const switchToRegister = () => {
+  message.value = ''
+  auth.state.error = ''
+  authMode.value = 'register'
+}
+
+const switchToLogin = () => {
+  message.value = ''
+  auth.state.error = ''
+  authMode.value = 'login'
 }
 
 const handleRegister = async () => {
@@ -96,14 +105,11 @@ const handleRegister = async () => {
     return
   }
 
-  await auth.register(registerEmail.value, registerPassword.value, registerNickname.value)
+  await auth.register(registerUsername.value, registerEmail.value, registerPassword.value, registerNickname.value)
   message.value = '注册成功，已自动登录。'
+  authMode.value = 'login'
 }
 
-const handleLogout = async () => {
-  await auth.logout()
-  message.value = '已退出登录。'
-}
 </script>
 
 <style scoped>
@@ -113,55 +119,44 @@ const handleLogout = async () => {
   gap: 20px;
 }
 
-.auth-layout {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+.page {
+  align-content: center;
+  min-height: calc(100vh - 160px);
 }
 
-.page-header h1,
+.auth-layout {
+  justify-items: stretch;
+  max-width: 520px;
+  width: min(520px, calc(100vw - 48px));
+  margin: 0 auto;
+}
+
 .panel h2,
-.panel label,
-.panel p {
+.panel label {
   margin: 0;
 }
 
-.page-header p {
-  margin-top: 8px;
-  color: #61685f;
-}
 
-.notice-panel,
 .panel {
   display: grid;
-  gap: 14px;
-  padding: 20px;
+  gap: 18px;
+  padding: 32px;
   border: 1px solid #d7d2c6;
-  border-radius: 24px;
+  border-radius: 16px;
   background: rgba(255, 253, 248, 0.96);
 }
 
-.notice-panel {
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: start;
+.auth-panel {
+  gap: 18px;
+  width: 100%;
+  min-width: 0;
 }
 
-.notice-panel p {
-  margin: 8px 0 0;
-  color: #61685f;
+.panel-header {
+  display: grid;
+  gap: 0;
 }
 
-.notice-tag {
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: #edf3ef;
-  color: #1b6a52;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.button-tag {
-  border: 1px solid #b8c9be;
-  font: inherit;
-}
 
 .status-message,
 .error-message {
@@ -189,12 +184,11 @@ button {
   border-radius: 12px;
   background: #ffffff;
   color: #1f251f;
-  padding: 10px 12px;
+  padding: 12px 14px;
   font: inherit;
 }
 
-button.secondary,
-.text-link {
+.link-button {
   background: #ffffff;
   color: #1f251f;
 }
@@ -209,37 +203,21 @@ button:disabled {
   opacity: 0.68;
 }
 
-.text-link {
-  justify-self: start;
-  border: 1px solid #d7d2c6;
-  border-radius: 12px;
-  padding: 10px 12px;
-  text-decoration: none;
-}
-
-.divider {
+.switch-line {
   display: flex;
   align-items: center;
-  gap: 10px;
-  color: #8a907f;
-  font-size: 0.9rem;
+  gap: 8px;
+  color: #61685f;
 }
 
-.divider::before,
-.divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: #d7d2c6;
-}
-
-.social-actions {
-  display: grid;
-  gap: 10px;
+.link-button {
+  border: 0;
+  padding: 0;
+  color: #1b6a52;
+  font-weight: 700;
 }
 
 @media (max-width: 960px) {
-  .notice-panel,
   .auth-layout {
     grid-template-columns: 1fr;
   }

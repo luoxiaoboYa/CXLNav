@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -35,43 +36,49 @@ public class AuthService {
 
   public Map<String, Object> register(Map<String, Object> request) {
     String email = requiredEmail(request);
+    String username = normalizedUsername(RequestValues.stringOrDefault(request, "username", email.split("@")[0]));
     String password = requiredPassword(request);
-    String nickname = RequestValues.stringOrDefault(request, "nickname", email.split("@")[0]);
+    String nickname = RequestValues.stringOrDefault(request, "nickname", username);
     String id = UUID.randomUUID().toString();
     Timestamp now = new Timestamp(System.currentTimeMillis());
 
     try {
       jdbcTemplate.update("""
-              insert into users (id, email, password_hash, nickname, role, status, created_at, updated_at)
-              values (?, ?, ?, ?, 'user', 'active', ?, ?)
+              insert into users (id, username, email, password_hash, nickname, role, status, created_at, updated_at)
+              values (?, ?, ?, ?, ?, 'user', 'active', ?, ?)
               """,
-          id, email, passwordHasher.hash(password), nickname, now, now);
+          id, username, email, passwordHasher.hash(password), nickname, now, now);
     } catch (DuplicateKeyException exception) {
-      throw ApiException.conflict("EMAIL_EXISTS", "邮箱已注册");
+      throw ApiException.conflict("ACCOUNT_EXISTS", "账号或邮箱已被注册");
     }
 
     return authResponse(loadUser(id));
   }
 
   public Map<String, Object> login(Map<String, Object> request) {
-    String email = requiredEmail(request);
+    String identifier = requiredIdentifier(request);
     String password = requiredPassword(request);
-    Map<String, Object> user = jdbcTemplate.query("""
-            select id, email, password_hash, nickname, role, status
+    boolean emailLogin = identifier.contains("@");
+    String lookupColumn = emailLogin ? "email" : "username";
+    String lookupValue = emailLogin ? identifier.toLowerCase() : normalizedUsername(identifier);
+
+    Map<String, Object> user = jdbcTemplate.query(String.format("""
+            select id, username, email, password_hash, nickname, role, status
             from users
-            where email = ? and deleted_at is null
-            """,
+            where %s = ? and deleted_at is null
+            """, lookupColumn),
         resultSet -> resultSet.next() ? Map.of(
             "id", resultSet.getString("id"),
+            "username", resultSet.getString("username"),
             "email", resultSet.getString("email"),
             "passwordHash", resultSet.getString("password_hash"),
             "nickname", resultSet.getString("nickname"),
             "role", resultSet.getString("role"),
             "status", resultSet.getString("status")) : null,
-        email);
+        lookupValue);
 
     if (user == null || !"active".equals(user.get("status")) || !passwordHasher.matches(password, user.get("passwordHash").toString())) {
-      throw new ApiException(org.springframework.http.HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS", "邮箱或密码不正确");
+      throw new ApiException(HttpStatus.UNAUTHORIZED, "INVALID_CREDENTIALS", "账号/邮箱或密码不正确");
     }
 
     jdbcTemplate.update("update users set last_login_at = ?, updated_at = ? where id = ?",
@@ -97,7 +104,7 @@ public class AuthService {
 
   private AuthenticatedUser loadUser(String id) {
     return jdbcTemplate.query("""
-            select id, email, nickname, role, status
+            select id, username, email, nickname, role, status
             from users
             where id = ? and deleted_at is null
             """,
@@ -107,6 +114,7 @@ public class AuthService {
           }
           return new AuthenticatedUser(
               resultSet.getString("id"),
+              resultSet.getString("username"),
               resultSet.getString("email"),
               resultSet.getString("nickname"),
               resultSet.getString("role"),
@@ -121,6 +129,26 @@ public class AuthService {
       throw ApiException.badRequest("INVALID_EMAIL", "请填写有效邮箱");
     }
     return email.toLowerCase();
+  }
+
+  private String requiredIdentifier(Map<String, Object> request) {
+    String identifier = RequestValues.stringOrDefault(request, "identifier", RequestValues.string(request, "email"));
+    if (identifier == null || identifier.isBlank()) {
+      throw ApiException.badRequest("IDENTIFIER_REQUIRED", "请填写账号或邮箱");
+    }
+    return identifier.trim();
+  }
+
+  private String normalizedUsername(String username) {
+    if (username == null) {
+      throw ApiException.badRequest("INVALID_USERNAME", "请填写账号");
+    }
+
+    String normalized = username.trim().toLowerCase();
+    if (!normalized.matches("[a-z0-9][a-z0-9_-]{2,31}")) {
+      throw ApiException.badRequest("INVALID_USERNAME", "账号需为 3-32 位字母、数字、下划线或短横线");
+    }
+    return normalized;
   }
 
   private String requiredPassword(Map<String, Object> request) {

@@ -13,9 +13,9 @@
       </div>
 
       <div class="header-actions">
-        <button class="primary-action" type="button">打开站点</button>
+        <button class="primary-action" type="button" @click="openSite">打开站点</button>
         <button class="ghost-link" type="button">编辑</button>
-        <button class="ghost-link" type="button">{{ site?.archiveStatus === 'archived' ? '恢复' : '归档' }}</button>
+        <button class="ghost-link" type="button" @click="toggleArchive">{{ site?.archiveStatus === 'archived' ? '恢复' : '归档' }}</button>
         <RouterLink class="ghost-link" to="/my-sites">返回我的站点</RouterLink>
       </div>
     </header>
@@ -46,8 +46,8 @@
         </button>
         <button class="ghost-link" type="button">查看推荐库说明</button>
         <button class="ghost-link" type="button">补充备注</button>
-        <button class="ghost-link" type="button">重新检测</button>
-        <button class="danger-action" type="button">删除</button>
+        <button class="ghost-link" type="button" @click="recheckSite">重新检测</button>
+        <button class="danger-action" type="button" @click="deleteSite">删除</button>
       </section>
 
       <section v-if="shareFlowVisible" class="panel share-flow-panel" aria-label="共享申请流程">
@@ -160,12 +160,13 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 
 import { findSiteByTitle, type SiteRecord } from '../data/sites'
 import { api, getStoredToken, type PersonalSiteDto } from '../services/api'
 
 const route = useRoute()
+const router = useRouter()
 const siteKey = computed(() => String(route.params.siteTitle ?? ''))
 const remoteSite = ref<SiteRecord | undefined>()
 const site = computed(() => remoteSite.value ?? findSiteByTitle(siteKey.value))
@@ -286,6 +287,56 @@ const formatTime = (value: string | null) => {
     hour: '2-digit',
     minute: '2-digit'
   }).format(new Date(value))
+}
+
+const openSite = async () => {
+  if (!site.value) {
+    return
+  }
+
+  if (!site.value.id || !getStoredToken()) {
+    window.open(site.value.url, '_blank', 'noopener')
+    return
+  }
+
+  const response = await api.openPersonalSite(site.value.id)
+  remoteSite.value = {
+    ...site.value,
+    lastOpenedAt: formatTime(response.lastOpenedAt)
+  }
+  window.open(response.url, '_blank', 'noopener')
+}
+
+const toggleArchive = async () => {
+  if (!site.value?.id || !getStoredToken()) {
+    return
+  }
+
+  const response = site.value.archiveStatus === 'archived'
+    ? await api.restorePersonalSite(site.value.id)
+    : await api.archivePersonalSite(site.value.id)
+  remoteSite.value = toSiteRecord(response.site)
+}
+
+const recheckSite = async () => {
+  if (!site.value?.id || !getStoredToken()) {
+    return
+  }
+
+  await api.recheckPersonalSite(site.value.id)
+  remoteSite.value = {
+    ...site.value,
+    securityStatus: 'checking'
+  }
+}
+
+const deleteSite = async () => {
+  if (!site.value?.id || !getStoredToken()) {
+    return
+  }
+
+  await api.deletePersonalSite(site.value.id)
+  await router.push('/my-sites')
 }
 
 onMounted(() => {

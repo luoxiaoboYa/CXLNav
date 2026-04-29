@@ -25,7 +25,7 @@ public class CurrentUserResolver {
 
     String userId = tokenService.verify(authorization.substring("Bearer ".length()).trim());
     return jdbcTemplate.query("""
-            select id, email, nickname, role, status
+            select id, username, email, nickname, role, status
             from users
             where id = ? and deleted_at is null and status = 'active'
             """,
@@ -35,6 +35,7 @@ public class CurrentUserResolver {
           }
           return new AuthenticatedUser(
               resultSet.getString("id"),
+              resultSet.getString("username"),
               resultSet.getString("email"),
               resultSet.getString("nickname"),
               resultSet.getString("role"),
@@ -46,6 +47,7 @@ public class CurrentUserResolver {
   public Map<String, Object> toUserResponse(AuthenticatedUser user) {
     Map<String, Object> response = new LinkedHashMap<>();
     response.put("id", user.id());
+    response.put("username", user.username());
     response.put("email", user.email());
     response.put("nickname", user.nickname());
     response.put("avatarUrl", null);

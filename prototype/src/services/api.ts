@@ -1,5 +1,6 @@
 export type AuthUser = {
   id: string
+  username: string
   email: string
   nickname: string
   avatarUrl: string | null
@@ -104,7 +105,7 @@ const request = async <T>(path: string, options: RequestInit = {}): Promise<T> =
 }
 
 export const api = {
-  async register(payload: { email: string; password: string; nickname: string }) {
+  async register(payload: { username: string; email: string; password: string; nickname: string }) {
     const response = await request<{ token: string; user: AuthUser }>('/auth/register', {
       method: 'POST',
       body: JSON.stringify(payload)
@@ -113,7 +114,7 @@ export const api = {
     return response
   },
 
-  async login(payload: { email: string; password: string }) {
+  async login(payload: { identifier: string; password: string }) {
     const response = await request<{ token: string; user: AuthUser }>('/auth/login', {
       method: 'POST',
       body: JSON.stringify(payload)
@@ -210,5 +211,21 @@ export const api = {
 
   deletePersonalSite(siteId: string) {
     return request<{ success: boolean }>(`/personal-sites/${siteId}?confirmShared=true`, { method: 'DELETE' })
+  },
+
+  openPersonalSite(siteId: string) {
+    return request<{ url: string; lastOpenedAt: string }>(`/personal-sites/${siteId}/open`, { method: 'POST' })
+  },
+
+  archivePersonalSite(siteId: string) {
+    return request<{ site: PersonalSiteDto }>(`/personal-sites/${siteId}/archive`, { method: 'POST' })
+  },
+
+  restorePersonalSite(siteId: string) {
+    return request<{ site: PersonalSiteDto }>(`/personal-sites/${siteId}/restore`, { method: 'POST' })
+  },
+
+  recheckPersonalSite(siteId: string) {
+    return request<{ validationTaskId: string; status: string }>(`/personal-sites/${siteId}/recheck`, { method: 'POST' })
   }
 }

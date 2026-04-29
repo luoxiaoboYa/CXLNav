@@ -129,6 +129,7 @@ POST /api/v1/auth/register
 
 ```json
 {
+  "username": "xiaoming",
   "email": "user@example.com",
   "password": "password123",
   "nickname": "小明"
@@ -142,6 +143,7 @@ POST /api/v1/auth/register
   "token": "jwt-token",
   "user": {
     "id": "user_1",
+    "username": "xiaoming",
     "email": "user@example.com",
     "nickname": "小明",
     "avatarUrl": null,
@@ -162,12 +164,12 @@ POST /api/v1/auth/login
 
 ```json
 {
-  "email": "user@example.com",
+  "identifier": "xiaoming",
   "password": "password123"
 }
 ```
 
-响应同注册。
+`identifier` 可以填写账号名或邮箱。响应同注册。
 
 ### 2.3 当前用户
 

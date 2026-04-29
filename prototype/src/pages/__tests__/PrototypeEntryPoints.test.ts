@@ -15,7 +15,7 @@ describe('prototype entry points', () => {
     })
 
     await fireEvent.click(screen.getByRole('link', { name: '注册 / 登录' }))
-    expect(await screen.findByRole('heading', { name: '登录与注册' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: '账号登录' })).toBeInTheDocument()
   })
 
   test('opens extension popup preview from plugin management', async () => {
