@@ -14,7 +14,12 @@
         </label>
         <label>
           <span>密码</span>
-          <input v-model="loginPassword" type="password" placeholder="输入密码" />
+          <span class="password-field">
+            <input v-model="loginPassword" :type="showLoginPassword ? 'text' : 'password'" placeholder="输入密码" />
+            <button class="password-toggle" type="button" @click="showLoginPassword = !showLoginPassword">
+              {{ showLoginPassword ? '隐藏' : '查看' }}
+            </button>
+          </span>
         </label>
         <button type="submit" :disabled="auth.state.loading">{{ auth.state.loading ? '处理中…' : '继续登录' }}</button>
 
@@ -42,11 +47,21 @@
         </label>
         <label>
           <span>设置密码</span>
-          <input v-model="registerPassword" type="password" placeholder="至少 6 位密码" />
+          <span class="password-field">
+            <input v-model="registerPassword" :type="showRegisterPassword ? 'text' : 'password'" placeholder="至少 6 位密码" />
+            <button class="password-toggle" type="button" @click="showRegisterPassword = !showRegisterPassword">
+              {{ showRegisterPassword ? '隐藏' : '查看' }}
+            </button>
+          </span>
         </label>
         <label>
           <span>确认密码</span>
-          <input v-model="confirmPassword" type="password" placeholder="再次输入密码" />
+          <span class="password-field">
+            <input v-model="confirmPassword" :type="showConfirmPassword ? 'text' : 'password'" placeholder="再次输入密码" />
+            <button class="password-toggle" type="button" @click="showConfirmPassword = !showConfirmPassword">
+              {{ showConfirmPassword ? '隐藏' : '查看' }}
+            </button>
+          </span>
         </label>
         <button type="submit" :disabled="auth.state.loading">{{ auth.state.loading ? '处理中…' : '创建账号' }}</button>
 
@@ -61,10 +76,13 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 import { useAuth } from '../services/auth'
 
 const auth = useAuth()
+const route = useRoute()
+const router = useRouter()
 
 const authMode = ref<'login' | 'register'>('login')
 const loginIdentifier = ref('')
@@ -75,6 +93,9 @@ const registerEmail = ref('')
 const registerPassword = ref('')
 const confirmPassword = ref('')
 const message = ref('')
+const showLoginPassword = ref(false)
+const showRegisterPassword = ref(false)
+const showConfirmPassword = ref(false)
 
 onMounted(() => {
   void auth.loadMe()
@@ -84,6 +105,7 @@ const handleLogin = async () => {
   message.value = ''
   await auth.login(loginIdentifier.value, loginPassword.value)
   message.value = '登录成功，管理中心已可读取真实后端数据。'
+  await router.push(getRedirectTarget())
 }
 
 const switchToRegister = () => {
@@ -107,7 +129,12 @@ const handleRegister = async () => {
 
   await auth.register(registerUsername.value, registerEmail.value, registerPassword.value, registerNickname.value)
   message.value = '注册成功，已自动登录。'
-  authMode.value = 'login'
+  await router.push(getRedirectTarget())
+}
+
+const getRedirectTarget = () => {
+  const redirect = route.query.redirect
+  return typeof redirect === 'string' && redirect.startsWith('/') ? redirect : '/settings'
 }
 
 </script>
@@ -182,10 +209,70 @@ input,
 button {
   border: 1px solid #d7d2c6;
   border-radius: 12px;
-  background: #ffffff;
   color: #1f251f;
   padding: 12px 14px;
   font: inherit;
+}
+
+.auth-panel input {
+  border-color: #d7d2c6 !important;
+  background: #ffffff !important;
+  color: #1f251f !important;
+  box-shadow: inset 0 0 0 1000px #ffffff;
+  caret-color: #1b6a52;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.auth-panel input::placeholder {
+  color: #8a826f !important;
+}
+
+.auth-panel input:hover,
+.auth-panel input:focus {
+  border-color: #1b6a52 !important;
+}
+
+.auth-panel input:focus {
+  outline: 3px solid rgba(27, 106, 82, 0.14);
+}
+
+.auth-panel input:-webkit-autofill,
+.auth-panel input:-webkit-autofill:hover,
+.auth-panel input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #1f251f !important;
+  box-shadow: inset 0 0 0 1000px #ffffff !important;
+  caret-color: #1b6a52;
+}
+
+.password-field {
+  position: relative;
+  display: block;
+}
+
+.password-field input {
+  width: 100%;
+  padding-right: 64px;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  min-width: 42px;
+  padding: 4px 6px;
+  border: 0;
+  background: transparent;
+  color: #1b6a52;
+  font-size: 0.86rem;
+  font-weight: 700;
+  line-height: 1;
+  transform: translateY(-50%);
+}
+
+.password-toggle:hover,
+.password-toggle:focus {
+  background: transparent;
+  color: #124b3a;
 }
 
 .link-button {
@@ -205,6 +292,7 @@ button:disabled {
 
 .switch-line {
   display: flex;
+  justify-content: center;
   align-items: center;
   gap: 8px;
   color: #61685f;

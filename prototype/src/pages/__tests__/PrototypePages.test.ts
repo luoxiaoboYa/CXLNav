@@ -11,6 +11,10 @@ const jsonResponse = (payload: unknown) =>
     status: 200
   }))
 
+const authenticateRoute = () => {
+  localStorage.setItem('cxsearch_api_token', 'test-token')
+}
+
 describe('remaining prototype routes', () => {
   afterEach(() => {
     resetAuthState()
@@ -115,6 +119,7 @@ describe('remaining prototype routes', () => {
   })
 
   test('renders the site editor page structure', async () => {
+    authenticateRoute()
     await router.push('/site-editor')
     await router.isReady()
 
@@ -129,6 +134,7 @@ describe('remaining prototype routes', () => {
   })
 
   test('renders the extension popup page structure', async () => {
+    authenticateRoute()
     await router.push('/extension-popup')
     await router.isReady()
 
@@ -145,6 +151,7 @@ describe('remaining prototype routes', () => {
   })
 
   test('renders the site detail page structure', async () => {
+    authenticateRoute()
     await router.push('/my-sites/GitHub')
     await router.isReady()
 

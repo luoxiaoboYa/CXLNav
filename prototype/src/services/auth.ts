@@ -28,6 +28,8 @@ export const resetAuthState = () => {
   state.error = ''
 }
 
+export const hasAuthSession = () => Boolean(state.token || getStoredToken())
+
 export const useAuth = () => {
   const login = async (identifier: string, password: string) => {
     state.loading = true

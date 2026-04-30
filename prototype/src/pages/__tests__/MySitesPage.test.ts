@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/vue'
-import { afterEach, vi } from 'vitest'
+import { afterEach, beforeEach, vi } from 'vitest'
 
 import App from '../../App.vue'
 import router from '../../router'
@@ -36,6 +36,10 @@ const backendSiteDto = (overrides: Record<string, unknown> = {}) => ({
 })
 
 describe('my sites page', () => {
+  beforeEach(() => {
+    localStorage.setItem('cxsearch_api_token', 'test-token')
+  })
+
   afterEach(() => {
     localStorage.clear()
     vi.restoreAllMocks()

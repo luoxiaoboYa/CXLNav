@@ -4,7 +4,7 @@
 
     <nav v-if="!isAuthRoute" aria-label="主导航" class="nav-links">
       <RouterLink to="/">首页</RouterLink>
-      <RouterLink to="/my-sites">我的站点</RouterLink>
+      <RouterLink v-if="isAuthenticated" to="/my-sites">我的站点</RouterLink>
       <RouterLink to="/discover">推荐发现</RouterLink>
     </nav>
 
@@ -16,7 +16,7 @@
     <div class="actions">
       <button v-if="!isAuthRoute" type="button" aria-label="搜索">搜索</button>
       <ThemeToggle />
-      <RouterLink v-if="!isAuthRoute" aria-label="设置" to="/settings">设置</RouterLink>
+      <RouterLink v-if="!isAuthRoute && isAuthenticated" aria-label="设置" to="/settings">设置</RouterLink>
       <RouterLink v-if="!isAuthRoute || auth.state.user" :aria-label="authActionLabel" :to="authActionTarget">
         {{ authActionLabel }}
       </RouterLink>
@@ -34,6 +34,7 @@ import { useAuth } from '../services/auth'
 const auth = useAuth()
 const route = useRoute()
 const isAuthRoute = computed(() => route.path === '/auth')
+const isAuthenticated = computed(() => Boolean(auth.state.user))
 const authActionLabel = computed(() => {
   const user = auth.state.user
   return user?.nickname || user?.username || user?.email || '注册 / 登录'
